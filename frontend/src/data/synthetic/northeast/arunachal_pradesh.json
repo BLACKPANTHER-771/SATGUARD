@@ -1,0 +1,26 @@
+{
+  "region_code": "ARUNACHAL_PRADESH",
+  "state_name": "Arunachal Pradesh",
+  "capital": "Itanagar",
+  "bounds": [91.500, 26.500, 97.500, 29.500],
+  "center": [94.500, 28.000],
+  "elevation_range_m": [150, 7090],
+  "primary_river_system": "Siang, Kameng, Subansiri, Lohit & Dibang Rivers",
+  "districts": [
+    { "id": "ARN-TAW", "name": "Tawang", "headquarters": "Tawang", "lat": 27.586, "lng": 91.859, "elevation_m": 3048, "population": 49977, "vulnerability_score": 0.86 },
+    { "id": "ARN-WKM", "name": "West Kameng", "headquarters": "Bomdila", "lat": 27.264, "lng": 92.417, "elevation_m": 2217, "population": 83947, "vulnerability_score": 0.84 },
+    { "id": "ARN-PPR", "name": "Papum Pare", "headquarters": "Yupia / Itanagar", "lat": 27.100, "lng": 93.620, "elevation_m": 320, "population": 176573, "vulnerability_score": 0.76 },
+    { "id": "ARN-ESI", "name": "East Siang", "headquarters": "Pasighat", "lat": 28.067, "lng": 95.333, "elevation_m": 155, "population": 99019, "vulnerability_score": 0.81 }
+  ],
+  "towns": [
+    { "id": "TWN-TWG", "name": "Tawang Town", "district": "Tawang", "lat": 27.586, "lng": 91.859, "elevation_m": 3048, "population": 11200, "risk_level": "CRITICAL" },
+    { "id": "TWN-BMD", "name": "Bomdila", "district": "West Kameng", "lat": 27.264, "lng": 92.417, "elevation_m": 2217, "population": 8500, "risk_level": "WARNING" },
+    { "id": "TWN-SLA", "name": "Sela Pass High Axis", "district": "Tawang / West Kameng Border", "lat": 27.502, "lng": 92.105, "elevation_m": 4170, "population": 350, "risk_level": "CRITICAL" },
+    { "id": "TWN-ITA", "name": "Itanagar Capital", "district": "Papum Pare", "lat": 27.100, "lng": 93.620, "elevation_m": 320, "population": 59490, "risk_level": "BASELINE" }
+  ],
+  "critical_corridors": [
+    "NH-13 Trans-Arunachal Highway (Bhalukpong - Bomdila - Tawang)",
+    "Pasighat - Yingkiong - Tuting Siang Valley Highway",
+    "Sela Tunnel Strategic Lifeline Route"
+  ]
+}

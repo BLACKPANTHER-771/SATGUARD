@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#167F78"/>
+  <circle cx="96" cy="96" r="64" fill="#EEE9DC" opacity="0.15"/>
+  <path d="M96 36L144 140H48L96 36Z" stroke="#FAF8F1" stroke-width="8" stroke-linejoin="round" fill="none"/>
+  <circle cx="96" cy="116" r="6" fill="#C58A24"/>
+  <path d="M96 74V100" stroke="#FAF8F1" stroke-width="7" stroke-linecap="round"/>
+  <text x="96" y="166" text-anchor="middle" fill="#FAF8F1" font-family="Inter, sans-serif" font-size="16" font-weight="700" letter-spacing="2">EPOCH FIELD</text>
+</svg>

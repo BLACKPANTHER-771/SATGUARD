@@ -1,0 +1,24 @@
+{
+  "region_code": "MEGHALAYA",
+  "state_name": "Meghalaya",
+  "capital": "Shillong",
+  "bounds": [89.800, 25.000, 92.800, 26.100],
+  "center": [91.360, 25.500],
+  "elevation_range_m": [150, 1961],
+  "primary_river_system": "Umiam, Umngot & Simsang Rivers",
+  "districts": [
+    { "id": "MEG-EKH", "name": "East Khasi Hills", "headquarters": "Shillong", "lat": 25.578, "lng": 91.893, "elevation_m": 1525, "population": 825922, "vulnerability_score": 0.82 },
+    { "id": "MEG-WGH", "name": "West Garo Hills", "headquarters": "Tura", "lat": 25.517, "lng": 90.217, "elevation_m": 349, "population": 643291, "vulnerability_score": 0.74 },
+    { "id": "MEG-EJH", "name": "East Jaintia Hills", "headquarters": "Khliehriat", "lat": 25.350, "lng": 92.367, "elevation_m": 1200, "population": 122939, "vulnerability_score": 0.85 }
+  ],
+  "towns": [
+    { "id": "TWN-SHL", "name": "Shillong City", "district": "East Khasi Hills", "lat": 25.578, "lng": 91.893, "elevation_m": 1525, "population": 143000, "risk_level": "WARNING" },
+    { "id": "TWN-CHJ", "name": "Cherrapunji (Sohra)", "district": "East Khasi Hills", "lat": 25.270, "lng": 91.730, "elevation_m": 1430, "population": 11722, "risk_level": "CRITICAL" },
+    { "id": "TWN-MWS", "name": "Mawsynram", "district": "East Khasi Hills", "lat": 25.300, "lng": 91.583, "elevation_m": 1400, "population": 6800, "risk_level": "CRITICAL" },
+    { "id": "TWN-KHL", "name": "Khliehriat (NH-6 Sonapur Tunnel)", "district": "East Jaintia Hills", "lat": 25.350, "lng": 92.367, "elevation_m": 1200, "population": 18500, "risk_level": "CRITICAL" }
+  ],
+  "critical_corridors": [
+    "NH-6 Meghalaya-Assam-Tripura Lifeline (Sonapur Tunnel Mudflow Section)",
+    "Guwahati - Shillong - Dawki Border Highway (NH-206)"
+  ]
+}

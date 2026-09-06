@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --bg-primary: #eee9dc;
+  --bg-surface: #faf8f1;
+  --bg-surface-elevated: #e6edeb;
+  --bg-nav: #f7f4eb;
+  --text-primary: #172126;
+  --text-secondary: #667579;
+  --accent-teal: #167f78;
+  --accent-terrain: #587a68;
+  --accent-amber: #c58a24;
+  --accent-coral: #c95050;
+  --accent-blue: #397fa8;
+  --border-color: #d7dedc;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  background-color: #eee9dc;
+  color: #172126;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Elegant Cursive Logo Styling */
+.font-brand {
+  font-family: 'Allura', 'Caveat', cursive, serif;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+/* Refined Subtle Cartographic Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #eee9dc;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d7dedc;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5d2;
+}
+
+/* Neutral Matte Surfaces & Panels */
+.surface-panel {
+  background: #faf8f1;
+  border: 1px solid #d7dedc;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(23, 33, 38, 0.06);
+}
+
+.surface-elevated {
+  background: #e6edeb;
+  border: 1px solid #d7dedc;
+  border-radius: 10px;
+}
+
+.glass-panel {
+  background: rgba(250, 248, 241, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid #d7dedc;
+}
+
+.glass-panel-subtle {
+  background: rgba(250, 248, 241, 0.85);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(215, 222, 220, 0.8);
+}
+
+/* Restrained Professional Micro-Animations */
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-animate {
+  animation: viewFadeIn 220ms ease-out forwards;
+}
+
+.card-hover-lift {
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 200ms cubic-bezier(0.16, 1, 0.3, 1), border-color 200ms ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px rgba(23, 33, 38, 0.09);
+  border-color: #cbd5d2;
+}
+
+
+
+

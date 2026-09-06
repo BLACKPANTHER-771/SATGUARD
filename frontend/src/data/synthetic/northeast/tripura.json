@@ -1,0 +1,20 @@
+{
+  "region_code": "TRIPURA",
+  "state_name": "Tripura",
+  "capital": "Agartala",
+  "bounds": [91.100, 22.900, 92.400, 24.500],
+  "center": [91.800, 23.800],
+  "elevation_range_m": [15, 930],
+  "primary_river_system": "Howrah, Gumti & Khowai Rivers",
+  "districts": [
+    { "id": "TRP-WST", "name": "West Tripura", "headquarters": "Agartala", "lat": 23.831, "lng": 91.286, "elevation_m": 15, "population": 918200, "vulnerability_score": 0.55 },
+    { "id": "TRP-DHL", "name": "Dhalai", "headquarters": "Ambassa", "lat": 23.920, "lng": 91.850, "elevation_m": 85, "population": 378230, "vulnerability_score": 0.70 }
+  ],
+  "towns": [
+    { "id": "TWN-JMP", "name": "Jampui Hills Ridge", "district": "North Tripura", "lat": 23.960, "lng": 92.280, "elevation_m": 850, "population": 4200, "risk_level": "WARNING" },
+    { "id": "TWN-AGT", "name": "Agartala Capital", "district": "West Tripura", "lat": 23.831, "lng": 91.286, "elevation_m": 15, "population": 400000, "risk_level": "BASELINE" }
+  ],
+  "critical_corridors": [
+    "NH-8 (Old NH-44) Assam - Agartala National Highway (Baramura & Atharamura Hills)"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "region_code": "MIZORAM",
+  "state_name": "Mizoram",
+  "capital": "Aizawl",
+  "bounds": [92.200, 21.900, 93.500, 24.500],
+  "center": [92.800, 23.300],
+  "elevation_range_m": [20, 2157],
+  "primary_river_system": "Tlawng, Chhimtuipui & Tuirial Rivers",
+  "districts": [
+    { "id": "MIZ-AZL", "name": "Aizawl", "headquarters": "Aizawl", "lat": 23.730, "lng": 92.717, "elevation_m": 1132, "population": 400309, "vulnerability_score": 0.87 },
+    { "id": "MIZ-LNG", "name": "Lunglei", "headquarters": "Lunglei", "lat": 22.880, "lng": 92.730, "elevation_m": 1222, "population": 161428, "vulnerability_score": 0.78 }
+  ],
+  "towns": [
+    { "id": "TWN-AZL", "name": "Aizawl Ridge City", "district": "Aizawl", "lat": 23.730, "lng": 92.717, "elevation_m": 1132, "population": 293416, "risk_level": "CRITICAL" },
+    { "id": "TWN-LNL", "name": "Laipuitlang Hillside", "district": "Aizawl", "lat": 23.745, "lng": 92.725, "elevation_m": 1180, "population": 3400, "risk_level": "CRITICAL" }
+  ],
+  "critical_corridors": [
+    "NH-54 / NH-306 Silchar - Vairengte - Aizawl Arterial Lifeline",
+    "Aizawl - Lunglei State Highway Corridor"
+  ]
+}

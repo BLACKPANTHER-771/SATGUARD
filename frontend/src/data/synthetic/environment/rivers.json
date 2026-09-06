@@ -1,0 +1,152 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Rivers_Network_Sikkim",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-TEESTA-MAIN",
+        "name": "Teesta River (Main Himalayan Stem)",
+        "type": "MAIN_STEM",
+        "width_m": 45.0,
+        "flow_speed_m_s": 4.8,
+        "danger_mark_m": 355.0,
+        "current_gauge_m": 353.4,
+        "status": "RISING_SURGE"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.542, 27.425, 780],
+          [88.535, 27.398, 715],
+          [88.528, 27.345, 530],
+          [88.512, 27.284, 435],
+          [88.498, 27.234, 345],
+          [88.518, 27.195, 320],
+          [88.532, 27.176, 305],
+          [88.502, 27.142, 290],
+          [88.455, 27.092, 275]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-DIKCHU-CHU",
+        "name": "Dikchu Chu (North Tributary)",
+        "type": "TRIBUTARY",
+        "width_m": 18.0,
+        "flow_speed_m_s": 3.6,
+        "status": "SWIFT_DEBRIS_DISCHARGE"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.570, 27.430, 1150],
+          [88.552, 27.415, 920],
+          [88.535, 27.398, 715]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-RANI-KHOLA",
+        "name": "Rani Khola (East Singtam Inflow)",
+        "type": "TRIBUTARY",
+        "width_m": 22.0,
+        "flow_speed_m_s": 3.2,
+        "status": "NORMAL_MONSOON"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.615, 27.320, 1420],
+          [88.560, 27.275, 880],
+          [88.515, 27.245, 490],
+          [88.498, 27.234, 345]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-RANGPO-CHU",
+        "name": "Rangpo Chu (Pakyong Valley River)",
+        "type": "TRIBUTARY",
+        "width_m": 20.0,
+        "flow_speed_m_s": 2.9,
+        "status": "NORMAL"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.600, 27.190, 950],
+          [88.565, 27.182, 580],
+          [88.532, 27.176, 305]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-ASM-BRAHMA",
+        "name": "Brahmaputra River (Major Arterial Valley Stem)",
+        "type": "MAIN_STEM",
+        "width_m": 80.0,
+        "flow_speed_m_s": 5.2,
+        "status": "MONSOON_SURGE"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [95.300, 27.600, 110],
+          [94.600, 27.200, 95],
+          [93.800, 26.800, 78],
+          [92.800, 26.600, 65],
+          [91.750, 26.190, 52],
+          [90.500, 26.100, 40]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-ASM-BARAK",
+        "name": "Barak River (Southern Assam Arterial)",
+        "type": "MAIN_STEM",
+        "width_m": 40.0,
+        "flow_speed_m_s": 3.8,
+        "status": "HIGH_FLOW"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [93.100, 24.900, 50],
+          [92.800, 24.830, 36],
+          [92.500, 24.800, 30]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "RIV-ASM-DIYUNG",
+        "name": "Diyung River (Haflong Mountain Gorge)",
+        "type": "TRIBUTARY",
+        "width_m": 22.0,
+        "flow_speed_m_s": 4.1,
+        "status": "FLASH_FLOOD_PRONE"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [93.080, 25.240, 520],
+          [93.040, 25.180, 480],
+          [93.010, 25.140, 430]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "FR-SKM-101",
+    "location": "Dikchu Lower Hamlet",
+    "gps": [88.536, 27.399],
+    "timestamp": "15 min ago",
+    "hazard_type": "Landslide Observed",
+    "severity": "CRITICAL",
+    "verification_status": "FIELD VERIFIED",
+    "observer": "SDRF Team Alpha",
+    "evidence_type": "PHOTO",
+    "notes": "Slope movement observed near residential cluster. 8 households alerted."
+  },
+  {
+    "id": "FR-SKM-102",
+    "location": "Milestone 14 Carriageway",
+    "gps": [88.534, 27.402],
+    "timestamp": "32 min ago",
+    "hazard_type": "Road Crack Detected",
+    "severity": "WARNING",
+    "verification_status": "FIELD REPORTED",
+    "observer": "BRO Highway Patrol",
+    "evidence_type": "PHOTO",
+    "notes": "12cm wide longitudinal fissure extending across road shoulder."
+  },
+  {
+    "id": "FR-SKM-103",
+    "location": "Singtam Indreni Drainage",
+    "gps": [88.498, 27.234],
+    "timestamp": "1 hr ago",
+    "hazard_type": "Drainage Obstruction",
+    "severity": "ADVISORY",
+    "verification_status": "PENDING",
+    "observer": "Municipal Worker",
+    "evidence_type": "PHOTO",
+    "notes": "Debris accumulation in roadside culvert chute."
+  }
+]

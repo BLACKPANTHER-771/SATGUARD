@@ -1,0 +1,39 @@
+{
+  "hazard_type": "EARTHQUAKE",
+  "name": "Himalayan Co-Seismic Landslide Trigger Model",
+  "version": "1.2-SYNTHETIC",
+  "symptoms": [
+    {
+      "id": "ground_shaking",
+      "label": "Strong Ground Motion Acceleration (PGA > 0.15g)",
+      "description": "Seismic ground acceleration shaking fractured rock mass",
+      "severity_weight": 0.50
+    },
+    {
+      "id": "co_seismic_rockfalls",
+      "label": "Multi-Slope Synchronous Rockfalls",
+      "description": "Simultaneous mass detachment along ridgelines triggered by seismic wave",
+      "severity_weight": 0.35
+    }
+  ],
+  "causes": [
+    {
+      "id": "main_central_thrust",
+      "label": "Main Central Thrust (MCT) Fault Slip",
+      "description": "Tectonic compression slip along the active Himalayan thrust boundary",
+      "category": "GEOLOGY",
+      "weight": 0.65
+    },
+    {
+      "id": "steep_jointed_cliff",
+      "label": "Steep Jointed Gneiss Cliffs",
+      "description": "Overhanging rock facets with open planar fractures vulnerable to dynamic shaking",
+      "category": "GEOLOGY",
+      "weight": 0.35
+    }
+  ],
+  "thresholds": {
+    "peak_ground_acceleration_g": 0.15,
+    "focal_depth_km": 15.0
+  }
+}

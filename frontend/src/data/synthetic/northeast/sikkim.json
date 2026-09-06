@@ -1,0 +1,33 @@
+{
+  "region_code": "SIKKIM",
+  "state_name": "Sikkim",
+  "capital": "Gangtok",
+  "bounds": [88.006, 27.080, 88.880, 28.120],
+  "center": [88.528, 27.350],
+  "elevation_range_m": [300, 8586],
+  "primary_river_system": "Teesta River System",
+  "districts": [
+    { "id": "SKM-EAS", "name": "Gangtok (East Sikkim)", "headquarters": "Gangtok", "lat": 27.331, "lng": 88.613, "elevation_m": 1650, "population": 283583, "vulnerability_score": 0.78 },
+    { "id": "SKM-PAK", "name": "Pakyong", "headquarters": "Pakyong", "lat": 27.240, "lng": 88.590, "elevation_m": 1120, "population": 74583, "vulnerability_score": 0.82 },
+    { "id": "SKM-NAM", "name": "Namchi (South Sikkim)", "headquarters": "Namchi", "lat": 27.170, "lng": 88.360, "elevation_m": 1315, "population": 146850, "vulnerability_score": 0.65 },
+    { "id": "SKM-GYA", "name": "Gyalshing (West Sikkim)", "headquarters": "Gyalshing", "lat": 27.280, "lng": 88.250, "elevation_m": 1720, "population": 136435, "vulnerability_score": 0.72 },
+    { "id": "SKM-MAN", "name": "Mangan (North Sikkim)", "headquarters": "Mangan", "lat": 27.510, "lng": 88.520, "elevation_m": 1310, "population": 43709, "vulnerability_score": 0.91 },
+    { "id": "SKM-SOR", "name": "Soreng", "headquarters": "Soreng", "lat": 27.165, "lng": 88.205, "elevation_m": 1450, "population": 65000, "vulnerability_score": 0.68 }
+  ],
+  "towns": [
+    { "id": "TWN-DKC", "name": "Dikchu Lower (Milestone 14)", "district": "Gangtok / Mangan Border", "lat": 27.398, "lng": 88.535, "elevation_m": 720, "population": 1420, "risk_level": "CRITICAL" },
+    { "id": "TWN-SGT", "name": "Singtam Bazaar", "district": "Gangtok / Pakyong", "lat": 27.234, "lng": 88.498, "elevation_m": 350, "population": 4200, "risk_level": "WARNING" },
+    { "id": "TWN-RNG", "name": "Rangpo Border Town", "district": "Pakyong", "lat": 27.176, "lng": 88.532, "elevation_m": 310, "population": 5800, "risk_level": "BASELINE" },
+    { "id": "TWN-GTK", "name": "Gangtok Capital City", "district": "Gangtok", "lat": 27.331, "lng": 88.613, "elevation_m": 1650, "population": 102000, "risk_level": "WARNING" },
+    { "id": "TWN-MEL", "name": "Melli Junction", "district": "Namchi", "lat": 27.092, "lng": 88.455, "elevation_m": 280, "population": 2900, "risk_level": "BASELINE" },
+    { "id": "TWN-NAM", "name": "Namchi City", "district": "Namchi", "lat": 27.170, "lng": 88.360, "elevation_m": 1315, "population": 12500, "risk_level": "BASELINE" },
+    { "id": "TWN-CHT", "name": "Chungthang Hub", "district": "Mangan", "lat": 27.604, "lng": 88.647, "elevation_m": 1790, "population": 3800, "risk_level": "CRITICAL" },
+    { "id": "TWN-MGN", "name": "Mangan HQ", "district": "Mangan", "lat": 27.510, "lng": 88.520, "elevation_m": 1310, "population": 4600, "risk_level": "CRITICAL" }
+  ],
+  "critical_corridors": [
+    "NH-10 Teesta River Arterial Lifeline (Siliguri - Melli - Rangpo - Singtam - Gangtok - Dikchu)",
+    "NH-717A Alternative Eastern Lifeline (Bagrakote - Pakyong - Singtam Bypass)",
+    "NH-310 Gangtok - Nathu La Pass Strategic Corridor",
+    "Dikchu - Chungthang North Defense Axis"
+  ]
+}

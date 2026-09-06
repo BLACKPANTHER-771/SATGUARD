@@ -1,0 +1,30 @@
+{
+  "region_code": "ASSAM",
+  "state_name": "Assam",
+  "capital": "Dispur / Guwahati",
+  "bounds": [89.700, 24.130, 96.020, 27.970],
+  "center": [92.500, 26.200],
+  "elevation_range_m": [45, 1960],
+  "primary_river_system": "Brahmaputra & Barak River System",
+  "districts": [
+    { "id": "ASM-DMH", "name": "Dima Hasao (North Cachar Hills)", "headquarters": "Haflong", "lat": 25.170, "lng": 93.020, "elevation_m": 680, "population": 214102, "vulnerability_score": 0.88 },
+    { "id": "ASM-KAM", "name": "Kamrup Metropolitan", "headquarters": "Guwahati", "lat": 26.144, "lng": 91.736, "elevation_m": 55, "population": 1253938, "vulnerability_score": 0.62 },
+    { "id": "ASM-CAC", "name": "Cachar", "headquarters": "Silchar", "lat": 24.833, "lng": 92.778, "elevation_m": 35, "population": 1736617, "vulnerability_score": 0.79 },
+    { "id": "ASM-DIB", "name": "Dibrugarh", "headquarters": "Dibrugarh", "lat": 27.480, "lng": 94.910, "elevation_m": 108, "population": 1326335, "vulnerability_score": 0.70 }
+  ],
+  "towns": [
+    { "id": "TWN-GHY", "name": "Guwahati Hub", "district": "Kamrup Metro", "lat": 26.144, "lng": 91.736, "elevation_m": 55, "population": 960000, "risk_level": "WARNING" },
+    { "id": "TWN-TEZ", "name": "Tezpur Historic Port", "district": "Sonitpur", "lat": 26.634, "lng": 92.798, "elevation_m": 62, "population": 102500, "risk_level": "BASELINE" },
+    { "id": "TWN-DIB", "name": "Dibrugarh City", "district": "Dibrugarh", "lat": 27.480, "lng": 94.910, "elevation_m": 108, "population": 154000, "risk_level": "WARNING" },
+    { "id": "TWN-TIN", "name": "Tinsukia Junction", "district": "Tinsukia", "lat": 27.500, "lng": 95.360, "elevation_m": 116, "population": 126000, "risk_level": "BASELINE" },
+    { "id": "TWN-LKH", "name": "North Lakhimpur", "district": "Lakhimpur", "lat": 27.230, "lng": 94.100, "elevation_m": 101, "population": 59800, "risk_level": "BASELINE" },
+    { "id": "TWN-HFL", "name": "Haflong Hill Station", "district": "Dima Hasao", "lat": 25.170, "lng": 93.020, "elevation_m": 680, "population": 43750, "risk_level": "CRITICAL" },
+    { "id": "TWN-JTN", "name": "Jatinga Valley", "district": "Dima Hasao", "lat": 25.120, "lng": 93.050, "elevation_m": 620, "population": 8900, "risk_level": "CRITICAL" },
+    { "id": "TWN-SLC", "name": "Silchar City", "district": "Cachar", "lat": 24.833, "lng": 92.778, "elevation_m": 35, "population": 178000, "risk_level": "WARNING" }
+  ],
+  "critical_corridors": [
+    "NH-27 East-West Corridor (Haflong Ghat - Lumding Hill Section)",
+    "Lumding - Badarpur NF Railway Hill Track",
+    "NH-37 Brahmaputra Valley Highway"
+  ]
+}

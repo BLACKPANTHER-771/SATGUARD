@@ -1,0 +1,114 @@
+{
+  "hazard_type": "LANDSLIDE",
+  "name": "Himalayan Slope Instability & Landslide Trigger Model",
+  "version": "2.4-SYNTHETIC",
+  "symptoms": [
+    {
+      "id": "heavy_rainfall",
+      "label": "Intense Convective Precipitation",
+      "description": "Short-duration intense rainfall exceeding soil infiltration threshold",
+      "severity_weight": 0.35
+    },
+    {
+      "id": "prolonged_rainfall",
+      "label": "Antecedent Monsoon Saturation",
+      "description": "Continuous 7-day rainfall saturating deep colluvium matrix",
+      "severity_weight": 0.30
+    },
+    {
+      "id": "soil_saturation",
+      "label": "Volumetric Soil Moisture Saturation (>85%)",
+      "description": "Pore water pressure accumulation reducing effective normal stress",
+      "severity_weight": 0.25
+    },
+    {
+      "id": "slope_crack",
+      "label": "Tension Crack & Escarpment Fissuring",
+      "description": "Visible longitudinal tension fissures propagating along crown of slope",
+      "severity_weight": 0.40
+    },
+    {
+      "id": "ground_deformation",
+      "label": "InSAR Line-of-Sight Deformation (>12 mm)",
+      "description": "Interferometric SAR fringe decorrelation and active slope downslope velocity",
+      "severity_weight": 0.45
+    },
+    {
+      "id": "rockfall",
+      "label": "Precursory Rock Chatter & Pebble Spalling",
+      "description": "Localized rockfall events preceding major slope failure mass movement",
+      "severity_weight": 0.20
+    },
+    {
+      "id": "drainage_blockage",
+      "label": "Roadside Drainage Chute Failure",
+      "description": "Blockage of hillside catch-drains causing unchannelized slope sheet runoff",
+      "severity_weight": 0.22
+    },
+    {
+      "id": "river_erosion",
+      "label": "Teesta River Toe Undercutting & Scour",
+      "description": "High-velocity river hydro-scour eroding basal support of the colluvial toe",
+      "severity_weight": 0.28
+    }
+  ],
+  "causes": [
+    {
+      "id": "steep_slope",
+      "label": "Steep Escarpment Topography (>32°)",
+      "description": "Gravity shear stress exceeding critical repose angle of weathered mantle",
+      "category": "GEOLOGY",
+      "weight": 0.29
+    },
+    {
+      "id": "prolonged_rainfall",
+      "label": "High Antecedent Precipitation",
+      "description": "Multi-day monsoon rainfall trigger exceeding empirical GSI/IMD threshold",
+      "category": "METEOROLOGY",
+      "weight": 0.38
+    },
+    {
+      "id": "saturated_colluvium",
+      "label": "Saturated Soil / Weak Colluvium",
+      "description": "Loss of soil cohesion due to high volumetric moisture saturation",
+      "category": "HYDROLOGY",
+      "weight": 0.18
+    },
+    {
+      "id": "weak_geology",
+      "label": "Phyllite / Schist Joint Planes & Shear Fractures",
+      "description": "Daling group fragile metamorphic lithology with unfavorable slope-parallel foliation",
+      "category": "GEOLOGY",
+      "weight": 0.06
+    },
+    {
+      "id": "road_cutting",
+      "label": "Toe Cutting & Road Alignment Excavation",
+      "description": "NH-10 bench excavation debuttressing steep valley hillslopes",
+      "category": "ANTHROPOGENIC",
+      "weight": 0.05
+    },
+    {
+      "id": "deforestation",
+      "label": "Vegetation Loss on Slope Mantle",
+      "description": "Loss of root reinforcement and increased surface erosion runoff velocity",
+      "category": "ANTHROPOGENIC",
+      "weight": 0.04
+    }
+  ],
+  "thresholds": {
+    "rainfall_1h_mm_critical": 35.0,
+    "rainfall_24h_mm_critical": 120.0,
+    "soil_moisture_pct_critical": 82.0,
+    "slope_angle_deg_critical": 32.0,
+    "insar_displacement_mm_critical": 12.0,
+    "river_stage_rise_m_critical": 2.5
+  },
+  "weights": {
+    "rainfall": 0.38,
+    "slope": 0.29,
+    "soil_moisture": 0.18,
+    "historical_freq": 0.09,
+    "lithology_jointing": 0.06
+  }
+}

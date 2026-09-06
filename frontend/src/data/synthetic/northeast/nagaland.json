@@ -1,0 +1,21 @@
+{
+  "region_code": "NAGALAND",
+  "state_name": "Nagaland",
+  "capital": "Kohima",
+  "bounds": [93.300, 25.100, 95.300, 27.000],
+  "center": [94.100, 26.150],
+  "elevation_range_m": [100, 3840],
+  "primary_river_system": "Doyang, Dhansiri & Dikhu Rivers",
+  "districts": [
+    { "id": "NAG-KOH", "name": "Kohima", "headquarters": "Kohima", "lat": 25.670, "lng": 94.110, "elevation_m": 1444, "population": 267988, "vulnerability_score": 0.85 },
+    { "id": "NAG-DMP", "name": "Dimapur", "headquarters": "Dimapur", "lat": 25.920, "lng": 93.730, "elevation_m": 145, "population": 378811, "vulnerability_score": 0.60 }
+  ],
+  "towns": [
+    { "id": "TWN-PGL", "name": "Paglapahar Gorge Sector", "district": "Chumoukedima / Kohima Axis", "lat": 25.810, "lng": 93.880, "elevation_m": 450, "population": 1200, "risk_level": "CRITICAL" },
+    { "id": "TWN-KHM", "name": "Kohima Capital", "district": "Kohima", "lat": 25.670, "lng": 94.110, "elevation_m": 1444, "population": 99039, "risk_level": "WARNING" }
+  ],
+  "critical_corridors": [
+    "NH-29 Dimapur - Chumoukedima - Kohima - Manipur Lifeline",
+    "Mokokchung - Mariani Inter-State Highway"
+  ]
+}

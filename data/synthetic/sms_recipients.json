@@ -1,0 +1,102 @@
+[
+  {
+    "recipientId": "REC-SK-001",
+    "name": "Shri T. Bhutia, IAS",
+    "phoneE164": "+919876543210",
+    "role": "District Collector & DDMA Chairman (Pakyong)",
+    "aoiId": "sikkim-nh10-dikchu",
+    "preferredLanguage": "en",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-SK-002",
+    "name": "Maj. R. K. Sharma",
+    "phoneE164": "+919876543211",
+    "role": "SDRF Tactical Unit Commander (Singtam Sector)",
+    "aoiId": "sikkim-nh10-dikchu",
+    "preferredLanguage": "hi",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-SK-003",
+    "name": "Er. P. Lepcha",
+    "phoneE164": "+919876543212",
+    "role": "PWD Executive Engineer (NH-10 Highway Division)",
+    "aoiId": "sikkim-nh10-dikchu",
+    "preferredLanguage": "hi",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-SK-004",
+    "name": "Pem Dorjee Sherpa",
+    "phoneE164": "+919876543213",
+    "role": "Gram Panchayat Pradhan (Dikchu Lower Basti)",
+    "aoiId": "sikkim-nh10-dikchu",
+    "preferredLanguage": "hi",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-AS-001",
+    "name": "Smti. N. Deka, IAS",
+    "phoneE164": "+919876543220",
+    "role": "Deputy Commissioner & DDMA Chair (Dima Hasao)",
+    "aoiId": "assam-dima-hasao-haflong",
+    "preferredLanguage": "as",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-AS-002",
+    "name": "Insp. B. Hrangkhawl",
+    "phoneE164": "+919876543221",
+    "role": "SDRF Quick Response Commander (Haflong Ghat)",
+    "aoiId": "assam-dima-hasao-haflong",
+    "preferredLanguage": "as",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-AS-003",
+    "name": "Er. S. Bhattacharjee",
+    "phoneE164": "+919876543222",
+    "role": "NF Railway Safety Officer (Lumding-Badarpur)",
+    "aoiId": "assam-dima-hasao-haflong",
+    "preferredLanguage": "bn",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-AS-004",
+    "name": "Lalthanpuia Jeme",
+    "phoneE164": "+919876543223",
+    "role": "Village Council Head (Jatinga Ridge)",
+    "aoiId": "assam-dima-hasao-haflong",
+    "preferredLanguage": "as",
+    "enabled": true,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-TEST-DISABLED",
+    "name": "Inactive Observer",
+    "phoneE164": "+919876543299",
+    "role": "Auxiliary Observer (Standby)",
+    "aoiId": "sikkim-nh10-dikchu",
+    "preferredLanguage": "en",
+    "enabled": false,
+    "synthetic": true
+  },
+  {
+    "recipientId": "REC-TEST-INVALID-PHONE",
+    "name": "Damaged Phone Record",
+    "phoneE164": "9876543288",
+    "role": "Field Lineman (Legacy Record)",
+    "aoiId": "sikkim-nh10-dikchu",
+    "preferredLanguage": "en",
+    "enabled": true,
+    "synthetic": true
+  }
+]

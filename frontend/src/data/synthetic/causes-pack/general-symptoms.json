@@ -1,0 +1,12 @@
+{
+  "name": "General Geo-Hazard Symptoms & Field Indicators Registry",
+  "version": "1.0-SYNTHETIC",
+  "symptoms_list": [
+    { "id": "rain_intense", "label": "Intense Rain", "category": "METEOROLOGY", "unit": "mm/hr", "warning_val": 25, "critical_val": 40 },
+    { "id": "rain_24h", "label": "24h Accumulated Rain", "category": "METEOROLOGY", "unit": "mm", "warning_val": 80, "critical_val": 130 },
+    { "id": "soil_moisture", "label": "Soil Saturation", "category": "HYDROLOGY", "unit": "%", "warning_val": 75, "critical_val": 85 },
+    { "id": "insar_disp", "label": "InSAR Line-of-Sight Displacement", "category": "GEOLOGY", "unit": "mm", "warning_val": 8, "critical_val": 15 },
+    { "id": "river_gauge", "label": "Teesta River Stage", "category": "HYDROLOGY", "unit": "m", "warning_val": 2.2, "critical_val": 3.2 },
+    { "id": "tension_crack", "label": "Road & Ground Tension Crack", "category": "GEOLOGY", "unit": "cm width", "warning_val": 5, "critical_val": 20 }
+  ]
+}

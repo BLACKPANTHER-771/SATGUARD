@@ -1,0 +1,69 @@
+{
+  "hazard_type": "FLOOD",
+  "name": "Teesta River & Valley Flood / Inundation Trigger Model",
+  "version": "1.8-SYNTHETIC",
+  "symptoms": [
+    {
+      "id": "extreme_rainfall",
+      "label": "Upstream Catchment Cloudburst",
+      "description": "High-altitude extreme convective precipitation event over North Sikkim catchment",
+      "severity_weight": 0.40
+    },
+    {
+      "id": "river_rise",
+      "label": "Rapid Water Gauge Escalation (>3.2m)",
+      "description": "Teesta River gauge rising at rate >0.8m/hr approaching danger mark",
+      "severity_weight": 0.35
+    },
+    {
+      "id": "drainage_blockage",
+      "label": "Culvert Debris Jam & Highway Siltation",
+      "description": "Sediment and boulder accumulation blocking bridge vents and highway culverts",
+      "severity_weight": 0.25
+    },
+    {
+      "id": "saturated_catchment",
+      "label": "100% Basin Saturation",
+      "description": "Zero infiltration capacity leading to 95% immediate overland runoff fraction",
+      "severity_weight": 0.30
+    }
+  ],
+  "causes": [
+    {
+      "id": "intense_cloudburst_upstream",
+      "label": "High-Altitude Glacial Lake & Catchment Cloudburst",
+      "description": "Extreme localized convective storm cell dumping >80mm/2hr in Upper Teesta basin",
+      "category": "METEOROLOGY",
+      "weight": 0.45
+    },
+    {
+      "id": "low_elevation_riparian",
+      "label": "Narrow Gorge Riparian Bottleneck",
+      "description": "Constricted valley cross-section causing water backflow and rapid inundation",
+      "category": "HYDROLOGY",
+      "weight": 0.30
+    },
+    {
+      "id": "riverbed_siltation",
+      "label": "Aggraded Riverbed Silt & Debris",
+      "description": "Heavy sediment load from landslide deposits reducing effective channel discharge capacity",
+      "category": "GEOLOGY",
+      "weight": 0.15
+    },
+    {
+      "id": "dam_spillway_discharge",
+      "label": "Hydro Dam Peak Spillway Release",
+      "description": "Controlled reservoir peak surcharge release through radial gates during flood surge",
+      "category": "ANTHROPOGENIC",
+      "weight": 0.10
+    }
+  ],
+  "thresholds": {
+    "rainfall_1h_mm_critical": 45.0,
+    "rainfall_24h_mm_critical": 150.0,
+    "soil_moisture_pct_critical": 90.0,
+    "slope_angle_deg_critical": 12.0,
+    "insar_displacement_mm_critical": 5.0,
+    "river_stage_rise_m_critical": 3.2
+  }
+}

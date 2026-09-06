@@ -1,0 +1,241 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Road_Network_Sikkim",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-NH10-MAIN",
+        "name": "NH-10 Himalayan Arterial Lifeline",
+        "class": "NATIONAL_HIGHWAY",
+        "width_m": 12.0,
+        "surface": "ASPHALT_REINFORCED",
+        "status": "AT_RISK",
+        "blocked_segment": "Milestone 14 (KM 19.4)",
+        "traffic_volume_pcu_day": 8400
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.455, 27.092, 280],
+          [88.472, 27.125, 295],
+          [88.508, 27.155, 305],
+          [88.532, 27.176, 310],
+          [88.525, 27.202, 330],
+          [88.498, 27.234, 350],
+          [88.512, 27.284, 450],
+          [88.545, 27.315, 540],
+          [88.585, 27.328, 850],
+          [88.613, 27.331, 1650],
+          [88.562, 27.365, 1100],
+          [88.535, 27.398, 720],
+          [88.520, 27.480, 1050],
+          [88.520, 27.510, 1310]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-NH717A",
+        "name": "NH-717A Alternative Eastern Lifeline",
+        "class": "NATIONAL_HIGHWAY",
+        "width_m": 10.0,
+        "surface": "ASPHALT",
+        "status": "OPERATIONAL_BYPASS",
+        "traffic_volume_pcu_day": 3200
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.532, 27.176, 310],
+          [88.560, 27.205, 650],
+          [88.590, 27.250, 1120],
+          [88.613, 27.331, 1650]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-NH310",
+        "name": "NH-310 Gangtok - Dikchu Connector",
+        "class": "MAJOR_ROAD",
+        "width_m": 8.0,
+        "surface": "ASPHALT",
+        "status": "OPERATIONAL",
+        "traffic_volume_pcu_day": 2400
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.613, 27.331, 1650],
+          [88.590, 27.350, 1400],
+          [88.562, 27.365, 1100],
+          [88.535, 27.398, 720]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-LOC-DKC-01",
+        "name": "Dikchu Market Crescent Loop",
+        "class": "LOCAL_ROAD",
+        "width_m": 5.5,
+        "surface": "CONCRETE_PAVED",
+        "status": "OPERATIONAL"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.531, 27.394, 710],
+          [88.535, 27.398, 720],
+          [88.538, 27.401, 735]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-LOC-DKC-DAM",
+        "name": "Teesta Stage-V Dam Access Road",
+        "class": "LOCAL_ROAD",
+        "width_m": 6.0,
+        "surface": "ASPHALT",
+        "status": "OPERATIONAL"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.535, 27.398, 720],
+          [88.529, 27.391, 680],
+          [88.524, 27.387, 650]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-LOC-DKC-M14",
+        "name": "Milestone 14 Hamlet Upper Track",
+        "class": "LOCAL_ROAD",
+        "width_m": 4.5,
+        "surface": "UNPAVED_GRAVEL",
+        "status": "BLOCKED_BY_SLUMP"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.535, 27.398, 720],
+          [88.533, 27.406, 760],
+          [88.530, 27.412, 810]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-LOC-SGT-MGM",
+        "name": "Singtam MG Marg & Riverfront Arterial",
+        "class": "LOCAL_ROAD",
+        "width_m": 7.0,
+        "surface": "ASPHALT",
+        "status": "OPERATIONAL"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.493, 27.231, 345],
+          [88.498, 27.234, 350],
+          [88.504, 27.237, 355]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-SDRF-BYPASS",
+        "name": "SDRF Emergency Evacuation Corridor (Martam Bypass)",
+        "class": "STATE_HIGHWAY",
+        "width_m": 7.5,
+        "surface": "ASPHALT",
+        "status": "ACTIVE_EMERGENCY_ROUTE"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [88.498, 27.234, 350],
+          [88.540, 27.280, 850],
+          [88.585, 27.328, 1250],
+          [88.550, 27.380, 920]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-ASM-NH27",
+        "name": "NH-27 East-West Corridor (Haflong Ghat Section)",
+        "class": "NATIONAL_HIGHWAY",
+        "width_m": 12.0,
+        "surface": "ASPHALT_REINFORCED",
+        "status": "AT_RISK",
+        "blocked_segment": "Haflong Ghat KM 84",
+        "traffic_volume_pcu_day": 7200
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [92.400, 25.750, 180],
+          [92.750, 25.500, 320],
+          [93.020, 25.170, 680],
+          [93.050, 25.120, 620],
+          [92.833, 24.833, 35]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-ASM-NH37",
+        "name": "NH-37 Brahmaputra Valley Highway",
+        "class": "NATIONAL_HIGHWAY",
+        "width_m": 14.0,
+        "surface": "ASPHALT",
+        "status": "OPERATIONAL",
+        "traffic_volume_pcu_day": 14000
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [91.736, 26.144, 55],
+          [92.798, 26.634, 62],
+          [93.850, 26.850, 85],
+          [94.910, 27.480, 108]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "ROAD-ASM-RLY-LMD",
+        "name": "Lumding – Badarpur Hill Section Railway",
+        "class": "MAJOR_ROAD",
+        "width_m": 6.0,
+        "surface": "RAILWAY_TRACK",
+        "status": "OPERATIONAL_CAUTION"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [93.160, 25.750, 125],
+          [93.080, 25.400, 380],
+          [93.018, 25.168, 660],
+          [92.850, 24.900, 45]
+        ]
+      }
+    }
+  ]
+}

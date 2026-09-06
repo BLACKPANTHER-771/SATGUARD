@@ -1,0 +1,17 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Slope_Risk_Classification",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "class": "HIGH_SUSCEPTIBILITY", "slope_range": ">35°", "color": "#C95050", "fos_estimate": 1.05 },
+      "geometry": { "type": "Polygon", "coordinates": [[[88.525, 27.385], [88.555, 27.390], [88.550, 27.415], [88.520, 27.405], [88.525, 27.385]]] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "class": "MODERATE_SUSCEPTIBILITY", "slope_range": "25°-35°", "color": "#C58A24", "fos_estimate": 1.35 },
+      "geometry": { "type": "Polygon", "coordinates": [[[88.505, 27.240], [88.550, 27.270], [88.560, 27.300], [88.520, 27.290], [88.505, 27.240]]] }
+    }
+  ]
+}

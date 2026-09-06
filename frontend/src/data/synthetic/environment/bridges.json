@@ -1,0 +1,105 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Bridges_Sikkim",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-01",
+        "name": "Teesta Stage-V Dam & Heavy Concrete Bridge",
+        "bridge_type": "HYDRO_DAM_CROSSING",
+        "spanned_river": "Teesta River",
+        "carrying_road": "Dam Axis Service Highway",
+        "structural_health_pct": 94,
+        "is_operational": true,
+        "status": "OPERATIONAL"
+      },
+      "geometry": { "type": "Point", "coordinates": [88.512, 27.284, 435] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-02",
+        "name": "Singtam Indreni Suspension Bridge",
+        "bridge_type": "SUSPENSION",
+        "spanned_river": "Teesta River",
+        "carrying_road": "Singtam - Shantinagar Link",
+        "structural_health_pct": 89,
+        "is_operational": true,
+        "status": "OPERATIONAL"
+      },
+      "geometry": { "type": "Point", "coordinates": [88.501, 27.241, 350] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-03",
+        "name": "Dikchu Bailey Bridge (NH-10 / Mangan Access)",
+        "bridge_type": "BAILEY",
+        "spanned_river": "Dikchu Chu",
+        "carrying_road": "NH-10 North Highway",
+        "structural_health_pct": 68,
+        "is_operational": true,
+        "status": "CAUTION_THREATENED_BY_SLUMP"
+      },
+      "geometry": { "type": "Point", "coordinates": [88.533, 27.396, 720] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-04",
+        "name": "Rangpo Interstate Border Lifeline Bridge",
+        "bridge_type": "CONCRETE_BEAM",
+        "spanned_river": "Rangpo Chu",
+        "carrying_road": "NH-10 Interstate Crossing",
+        "structural_health_pct": 98,
+        "is_operational": true,
+        "status": "OPERATIONAL"
+      },
+      "geometry": { "type": "Point", "coordinates": [88.530, 27.174, 310] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-05",
+        "name": "Melli Teesta River Gateway Bridge",
+        "bridge_type": "CONCRETE_BEAM",
+        "spanned_river": "Teesta River",
+        "carrying_road": "NH-10 Gateway",
+        "structural_health_pct": 96,
+        "is_operational": true,
+        "status": "OPERATIONAL"
+      },
+      "geometry": { "type": "Point", "coordinates": [88.455, 27.092, 280] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-ASM-01",
+        "name": "Diyung River Gorge Bridge (NH-27 Haflong)",
+        "bridge_type": "CONCRETE_GIRDER",
+        "spanned_river": "Diyung River",
+        "carrying_road": "NH-27 East-West Corridor",
+        "structural_health_pct": 72,
+        "is_operational": true,
+        "status": "VULNERABLE_SCOUR_RISK"
+      },
+      "geometry": { "type": "Point", "coordinates": [93.040, 25.180, 485] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "BRG-ASM-02",
+        "name": "Saraighat Brahmaputra River Bridge",
+        "bridge_type": "TRUSS_RAIL_ROAD",
+        "spanned_river": "Brahmaputra River",
+        "carrying_road": "NH-27 / NFR Gateway",
+        "structural_health_pct": 92,
+        "is_operational": true,
+        "status": "OPERATIONAL"
+      },
+      "geometry": { "type": "Point", "coordinates": [91.680, 26.178, 55] }
+    }
+  ]
+}

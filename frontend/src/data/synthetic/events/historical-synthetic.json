@@ -1,0 +1,30 @@
+[
+  {
+    "id": "HIST-SKM-2023-01",
+    "event_name": "Teesta Basin Flash Flood & Slope Failure",
+    "date": "04 Oct 2023",
+    "location": "Singtam - Dikchu Corridor",
+    "gps": [88.512, 27.284],
+    "rainfall_mm_24h": 195.0,
+    "hazard_type": "COMBINED_GLOF_LANDSLIDE",
+    "impact": {
+      "bridges_severed": 1,
+      "road_blockage_days": 18,
+      "displaced_persons": 2400
+    },
+    "key_learning": "Early evacuation via Martam Ridge prevented mass casualties."
+  },
+  {
+    "id": "HIST-SKM-2020-02",
+    "event_name": "Milestone 14 Monsoon Colluvial Slump",
+    "date": "18 Jul 2020",
+    "location": "Dikchu Lower NH-10",
+    "gps": [88.535, 27.398],
+    "rainfall_mm_24h": 142.0,
+    "hazard_type": "DEBRIS_SLUMP",
+    "impact": {
+      "road_blockage_days": 5,
+      "structures_damaged": 4
+    }
+  }
+]

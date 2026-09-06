@@ -1,0 +1,61 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Terrain_Relief_Sikkim",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "TERR-ESCARP-01",
+        "name": "Dikchu East Escarpment (Mile 14 Crown)",
+        "slope_degrees": 44.5,
+        "aspect": "SSW",
+        "elevation_m": 1466,
+        "geology": "Daling Phyllites with slope-parallel jointing",
+        "landcover": "Degraded mixed subtropical slope forest"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[88.528, 27.385], [88.550, 27.390], [88.558, 27.412], [88.535, 27.418], [88.520, 27.398], [88.528, 27.385]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "TERR-RIDGE-MARTAM",
+        "name": "Martam - Singtam Ridge Crest",
+        "slope_degrees": 28.0,
+        "aspect": "WNW",
+        "elevation_m": 1250,
+        "geology": "Competent Quartzite Schist",
+        "landcover": "Terraced agriculture & pine canopy"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[88.510, 27.245], [88.545, 27.275], [88.565, 27.310], [88.535, 27.320], [88.500, 27.265], [88.510, 27.245]]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "TERR-VALLEY-TEESTA",
+        "name": "Teesta River Valley Floor Corridor",
+        "slope_degrees": 6.5,
+        "aspect": "FLAT_VALLEY",
+        "elevation_m": 350,
+        "geology": "Quaternary alluvial gravels and river sand",
+        "landcover": "Riparian buffer, urban settlements and road carriageway"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[88.490, 27.225], [88.505, 27.228], [88.538, 27.380], [88.528, 27.390], [88.495, 27.240], [88.490, 27.225]]
+        ]
+      }
+    }
+  ]
+}

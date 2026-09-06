@@ -1,0 +1,23 @@
+{
+  "region_code": "MANIPUR",
+  "state_name": "Manipur",
+  "capital": "Imphal",
+  "bounds": [93.000, 23.800, 94.800, 25.700],
+  "center": [93.900, 24.800],
+  "elevation_range_m": [40, 2994],
+  "primary_river_system": "Imphal, Barak & Ijai Rivers",
+  "districts": [
+    { "id": "MAN-NNY", "name": "Noney", "headquarters": "Noney", "lat": 24.820, "lng": 93.600, "elevation_m": 820, "population": 38000, "vulnerability_score": 0.94 },
+    { "id": "MAN-TML", "name": "Tamenglong", "headquarters": "Tamenglong", "lat": 24.980, "lng": 93.500, "elevation_m": 1260, "population": 140651, "vulnerability_score": 0.89 },
+    { "id": "MAN-IMP", "name": "Imphal West", "headquarters": "Lamphelpat", "lat": 24.817, "lng": 93.950, "elevation_m": 786, "population": 517992, "vulnerability_score": 0.60 }
+  ],
+  "towns": [
+    { "id": "TWN-TPL", "name": "Tupul Railway Yard Sector", "district": "Noney", "lat": 24.780, "lng": 93.630, "elevation_m": 620, "population": 2200, "risk_level": "CRITICAL" },
+    { "id": "TWN-NNY", "name": "Noney Town", "district": "Noney", "lat": 24.820, "lng": 93.600, "elevation_m": 820, "population": 4800, "risk_level": "WARNING" },
+    { "id": "TWN-IMP", "name": "Imphal City", "district": "Imphal West", "lat": 24.817, "lng": 93.950, "elevation_m": 786, "population": 277000, "risk_level": "BASELINE" }
+  ],
+  "critical_corridors": [
+    "NH-37 Imphal - Jiribam National Highway",
+    "Jiribam - Tupul - Imphal Broad Gauge Railway Corridor"
+  ]
+}

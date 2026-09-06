@@ -1,0 +1,139 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Critical_Infrastructure_Sikkim",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-HSP-01",
+        "name": "Singtam Sub-Divisional Hospital (120-Bed Trauma Center)",
+        "category": "HOSPITAL",
+        "capacity": 120,
+        "status": "OPERATIONAL",
+        "description": "Primary regional emergency receiving facility with ICU, blood bank and helipad access."
+      },
+      "geometry": { "type": "Point", "coordinates": [88.496, 27.239, 360] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-HSP-02",
+        "name": "Dikchu Primary Health Centre (PHC)",
+        "category": "HOSPITAL",
+        "capacity": 15,
+        "status": "EXPOSED_RISK_OF_ISOLATION",
+        "description": "First-responder mountain clinic servicing Dikchu and Milestone 14 hamlets."
+      },
+      "geometry": { "type": "Point", "coordinates": [88.537, 27.399, 725] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-SHL-01",
+        "name": "Singtam Senior Secondary School (Designated NDRF Relief Shelter)",
+        "category": "SHELTER",
+        "capacity": 850,
+        "status": "STANDBY_READY",
+        "description": "Earthquake-reinforced shelter equipped with standby generators and bulk water reserves."
+      },
+      "geometry": { "type": "Point", "coordinates": [88.495, 27.230, 355] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-SHL-02",
+        "name": "Dikchu Govt Secondary School (SDRF Shelter)",
+        "category": "SHELTER",
+        "capacity": 400,
+        "status": "STANDBY_READY",
+        "description": "High-ground evacuation shelter above river flood plain."
+      },
+      "geometry": { "type": "Point", "coordinates": [88.540, 27.402, 750] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-PWR-01",
+        "name": "Teesta Stage-V 510MW Hydro Powerhouse & Switchyard",
+        "category": "POWER_PLANT",
+        "capacity": 510,
+        "status": "OPERATIONAL_HIGH_SURVEILLANCE",
+        "description": "NHPC hydroelectric underground turbine cavern supplying national grid power."
+      },
+      "geometry": { "type": "Point", "coordinates": [88.514, 27.286, 440] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-BRO-01",
+        "name": "BRO Project Swastik Heavy Equipment Staging Base",
+        "category": "DEFENSE_BASE",
+        "capacity": 60,
+        "status": "ACTIVE_MOBILIZATION",
+        "description": "Border Roads Organisation depot with 4 hydraulic excavators and rock-breaker trucks."
+      },
+      "geometry": { "type": "Point", "coordinates": [88.536, 27.404, 760] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-ASM-HSP-01",
+        "name": "Haflong Civil Hospital & Trauma Centre",
+        "category": "HOSPITAL",
+        "capacity": 200,
+        "status": "OPERATIONAL_HIGH_ALERT",
+        "description": "Apex district hospital serving Dima Hasao hill district."
+      },
+      "geometry": { "type": "Point", "coordinates": [93.025, 25.174, 680] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-ASM-HSP-02",
+        "name": "Silchar Medical College & Hospital (SMCH)",
+        "category": "HOSPITAL",
+        "capacity": 800,
+        "status": "OPERATIONAL",
+        "description": "Barak Valley tertiary medical center with helipad and trauma resuscitation."
+      },
+      "geometry": { "type": "Point", "coordinates": [92.795, 24.815, 38] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-ASM-SHL-01",
+        "name": "Jatinga Hill Evacuation Shelter",
+        "category": "SHELTER",
+        "capacity": 650,
+        "status": "STANDBY_READY",
+        "description": "Reinforced hilltop community hall designated as high-risk evacuation point."
+      },
+      "geometry": { "type": "Point", "coordinates": [93.048, 25.122, 630] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-ASM-RLY-01",
+        "name": "Haflong Hill Railway Station (NFR)",
+        "category": "DEFENSE_BASE",
+        "capacity": 150,
+        "status": "AT_RISK_LANDSLIDE",
+        "description": "Strategic mountain rail corridor station along Lumding-Badarpur route."
+      },
+      "geometry": { "type": "Point", "coordinates": [93.018, 25.168, 660] }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "INF-ASM-GHY-01",
+        "name": "Guwahati State Disaster Response Hub (Patgaon NDRF 1st Bn)",
+        "category": "DEFENSE_BASE",
+        "capacity": 500,
+        "status": "ACTIVE_MOBILIZATION",
+        "description": "Regional emergency headquarters with heavy air-lift and rescue equipment."
+      },
+      "geometry": { "type": "Point", "coordinates": [91.685, 26.135, 60] }
+    }
+  ]
+}

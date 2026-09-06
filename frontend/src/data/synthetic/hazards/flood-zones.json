@@ -1,0 +1,59 @@
+{
+  "type": "FeatureCollection",
+  "name": "Synthetic_Flood_Inundation_Zones",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "FLOOD-ZONE-TEESTA-01",
+        "name": "Teesta River Singtam Lowland Inundation Buffer",
+        "hazard_type": "FLOOD",
+        "return_period": "25-YEAR",
+        "risk_level": "WARNING",
+        "water_depth_potential_m": 2.4,
+        "affected_roads": ["Singtam Riverfront Road"],
+        "threatened_structures": ["Singtam Lower Shophouse Row"]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [88.492, 27.230],
+            [88.506, 27.234],
+            [88.512, 27.240],
+            [88.502, 27.245],
+            [88.490, 27.238],
+            [88.492, 27.230]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "FLOOD-ZONE-DIKCHU-01",
+        "name": "Dikchu River Confluence Inundation Pocket",
+        "hazard_type": "FLOOD",
+        "return_period": "10-YEAR",
+        "risk_level": "WARNING",
+        "water_depth_potential_m": 1.8,
+        "affected_roads": ["Teesta Stage-V Access Road"],
+        "threatened_structures": ["Riverbed Workshop 1"]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [88.530, 27.394],
+            [88.540, 27.396],
+            [88.542, 27.402],
+            [88.532, 27.401],
+            [88.528, 27.396],
+            [88.530, 27.394]
+          ]
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+[
+  {
+    "id": "INC-SKM-882",
+    "location": "Dikchu–Singtam Milestone 14 (KM 19.4)",
+    "gps": [88.535, 27.398],
+    "timestamp": "03 Sept 2026 22:45 IST",
+    "hazard_type": "Active Colluvial Slump & Road Carriageway Crack",
+    "severity": "CRITICAL",
+    "verification_status": "FIELD VERIFIED",
+    "observer": "SDRF Ground Patrol 2 & Drone Unit",
+    "evidence_type": "DRONE_VIDEO",
+    "notes": "35m road carriageway crack detected following 38.4mm/hr convective rainfall trigger. BRO heavy bulldozer dispatched.",
+    "affected_road_id": "ROAD-NH10-MAIN",
+    "suggested_alternate_route": "ROAD-SDRF-BYPASS"
+  },
+  {
+    "id": "INC-SKM-879",
+    "location": "Rangpo–Melli Link Cut (KM 8.2)",
+    "gps": [88.532, 27.176],
+    "timestamp": "03 Sept 2026 21:15 IST",
+    "hazard_type": "Rockfall Debris Obstruction",
+    "severity": "WARNING",
+    "verification_status": "FIELD REPORTED",
+    "observer": "Local Ward Councilor",
+    "evidence_type": "PHOTO",
+    "notes": "Partial carriageway obstruction; single-lane emergency traffic operational.",
+    "affected_road_id": "ROAD-NH10-MAIN"
+  }
+]
