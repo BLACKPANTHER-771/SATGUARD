@@ -1,0 +1,129 @@
+Created At: 2026-09-20T23:55:16+05:30
+Completed At: 2026-09-20T23:55:16+05:30
+File Path: `file:///Users/manasvibhati/Desktop/EPOCH-R2/frontend/src/components/commandcenter/OpenWeatherCommandCenter.tsx`
+Total Lines: 1494
+Total Bytes: 74770
+Showing lines 60 to 180
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+60: import { ExecutiveReportModal } from '../reports/ExecutiveReportModal';
+61: import { WeatherProviderOrchestrator } from '../../services/weatherProviderOrchestrator';
+62: import { RegionalWeatherReport, getWeatherDataForZone } from '../../data/command-centre/weatherData';
+63: import { OpenStreetMapViewer } from './OpenStreetMapViewer';
+64: import { SyntheticEarthViewer } from '../map3d/SyntheticEarthViewer';
+65: import { RedZoneInspector } from '../intelligence/RedZoneInspector';
+66: import { getRiskBadgeClasses, getRiskColor, getRiskLevel, InterpretableRiskEngine } from '../../services/riskEngine';
+67: import { getAuthoritativeAOI, getPrimaryAOIForState, AUTHORITATIVE_AOIS } from '../../data/command-centre/aoiRegistry';
+68: 
+69: interface OpenWeatherCommandCenterProps {
+70:   zones: RiskZone[];
+71:   selectedZone: RiskZone;
+72:   onSelectZone: (zone: RiskZone) => void;
+73:   selectedState?: string;
+74:   onSelectState?: (state: string) => void;
+75:   metrics: SummaryMetrics | null;
+76:   criticalEvents: CriticalEvent[];
+77:   timeOffset: number;
+78:   onTimeChange?: (time: number) => void;
+79:   onTriggerSOP?: () => void;
+80:   roads?: RoadConnectivity[];
+81:   historicalEvents?: HistoricalEvent[];
+82:   soilStations?: SoilMoistureStation[];
+83:   satelliteObs?: SatelliteObservation[];
+84:   alerts?: MultilingualAlert[];
+85:   evidenceCards?: EvidenceCard[];
+86:   selectedLanguage?: LanguageCode;
+87:   onSelectLanguage?: (lang: LanguageCode) => void;
+88:   isOfflineMode?: boolean;
+89: }
+90: 
+91: export type WeatherLayerType = 'precipitation' | 'risk_heatmap' | 'roads' | 'villages' | 'infrastructure' | 'sensors' | 'satellite_change' | 'field_reports';
+92: export type ForecastRange = '24h' | '7d' | 'historical';
+93: export type RightPanelTab = 'risk_intel' | 'priorities' | 'reports' | 'sensors' | 'alerts';
+94: export type SupportedState = 'Sikkim' | 'Assam';
+95: 
+96: export const OpenWeatherCommandCenter: React.FC<OpenWeatherCommandCenterProps> = ({
+97:   zones,
+98:   selectedZone,
+99:   onSelectZone,
+100:   selectedState: parentSelectedState,
+101:   onSelectState,
+102:   metrics,
+103:   criticalEvents,
+104:   timeOffset,
+105:   onTimeChange,
+106:   onTriggerSOP,
+107:   roads = [],
+108:   historicalEvents = [],
+109:   soilStations = [],
+110:   satelliteObs = [],
+111:   alerts = [],
+112:   evidenceCards = [],
+113:   selectedLanguage = 'en',
+114:   onSelectLanguage,
+115:   isOfflineMode = false
+116: }) => {
+117:   // State selection (Sync with parent or default to Sikkim)
+118:   const activeStateName: SupportedState = parentSelectedState?.toLowerCase() === 'assam' ? 'Assam' : 'Sikkim';
+119:   const [selectedState, setSelectedState] = useState<SupportedState>(activeStateName);
+120: 
+121:   useEffect(() => {
+122:     if (parentSelectedState) {
+123:       const st = parentSelectedState.toLowerCase() === 'assam' ? 'Assam' : 'Sikkim';
+124:       setSelectedState(st);
+125:       if (st === 'Sikkim') {
+126:         setMapCenter({ lat: 27.398, lng: 88.535, zoom: 10.8 });
+127:       } else {
+128:         setMapCenter({ lat: 25.1764, lng: 93.0238, zoom: 9.8 });
+129:       }
+130:     }
+131:   }, [parentSelectedState]);
+132: 
+133:   // Map Navigation & Extents (Default: Level 1 - India / Sikkim Level)
+134:   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number; zoom: number }>({
+135:     lat: activeStateName === 'Assam' ? 25.1764 : 27.398,
+136:     lng: activeStateName === 'Assam' ? 93.0238 : 88.535,
+137:     zoom: activeStateName === 'Assam' ? 9.8 : 10.8
+138:   });
+139: 
+140:   // Layer Visibility State
+141:   const [activeLayers, setActiveLayers] = useState<Record<WeatherLayerType, boolean>>({
+142:     precipitation: true,
+143:     risk_heatmap: true,
+144:     roads: true,
+145:     villages: true,
+146:     infrastructure: true,
+147:     sensors: true,
+148:     satellite_change: true,
+149:     field_reports: true
+150:   });
+151: 
+152:   const [forecastRange, setForecastRange] = useState<ForecastRange>('24h');
+153:   const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('risk_intel');
+154:   const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
+155:   const [inspectingZone, setInspectingZone] = useState<RiskZone | null>(null);
+156:   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
+157:   const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState<boolean>(false);
+158: 
+159:   // Executive Report & Phase 2/3 Data States
+160:   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+161:   const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
+162:   const [riskResult, setRiskResult] = useState<RiskAssessmentResult | null>(null);
+163:   const [mapViewMode, setMapViewMode] = useState<'2d' | '3d'>('2d');
+164: 
+165:   useEffect(() => {
+166:     const loadPhase2And3Data = async () => {
+167:       try {
+168:         const [dmg, risk] = await Promise.all([
+169:           DataService.getSceneResult('sikkim-nh10-dikchu-sector'),
+170:           DataService.getSikkimDemoRisk()
+171:         ]);
+172:         setAssessmentResult(dmg);
+173:         setRiskResult(risk);
+174:       } catch (err) {
+175:         console.warn('Error loading assessment/risk data in command center:', err);
+176:       }
+177:     };
+178:     loadPhase2And3Data();
+179:   }, []);
+180: 
+The above content does NOT show the entire file contents. If you need to view any lines of the file which were not shown to complete your task, call this tool again to view those lines.

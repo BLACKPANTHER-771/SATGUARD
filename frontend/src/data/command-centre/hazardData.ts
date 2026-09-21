@@ -84,29 +84,29 @@ interface RawHazardDefinition {
 }
 
 const RAW_HAZARD_DEFINITIONS: RawHazardDefinition[] = [
-  // SIKKIM 1: CRITICAL - Dikchu Mile 14
+  // SIKKIM 1: CRITICAL - Chungthang Basin (Teesta-III Dam Corridor)
   {
     id: 'HAZ-SK-01',
-    name: 'Dikchu Mile 14 Colluvial Slump',
+    name: 'Chungthang Basin (Teesta-III Dam Corridor)',
     state: 'Sikkim',
-    district: 'Pakyong',
-    centerLng: 88.535,
-    centerLat: 27.398,
+    district: 'Mangan',
+    centerLng: 88.65060,
+    centerLat: 27.59814,
     polygonCoords: [
-      88.522, 27.388,  88.528, 27.410,  88.544, 27.412,  88.549, 27.395,  88.538, 27.385
+      88.642, 27.590,  88.643, 27.608,  88.658, 27.609,  88.662, 27.594,  88.652, 27.588
     ],
-    triggerMechanism: 'Pore pressure failure in saturated biotite gneiss colluvium (34.8° slope)',
-    soilMoisturePct: 84,
-    slopeAngleDeg: 34.8,
-    rainfall1hMm: 38.4,
-    rainfall72hMm: 265.0,
-    historicalEvents5y: 6,
-    geology: 'Weathered Biotite Gneiss & Mica Schist',
-    populationExposed: 1420,
-    villagesExposed: ['Dikchu Basti', 'Lower Singtam', 'Melli Colony'],
-    roadsAffected: ['NH-10 Teesta Lifeline Road (KM 18-24)', 'Dikchu Bridge Approach'],
-    threatenedBridges: ['Dikchu River Bridge'],
-    criticalFacilities: ['Singtam Hydro Power Substation', 'Dikchu Primary Health Sub-Centre']
+    triggerMechanism: 'South Lhonak Glacial Lake Outburst Flood (GLOF) surge pulse wave exceeding 2,500 m³/s through Teesta gorge',
+    soilMoisturePct: 88,
+    slopeAngleDeg: 38.5,
+    rainfall1hMm: 42.0,
+    rainfall72hMm: 295.0,
+    historicalEvents5y: 5,
+    geology: 'Higher Himalayan Biotite Gneiss & Granitic Gneiss with deep glaciolacustrine alluvium',
+    populationExposed: 4200,
+    villagesExposed: ['Chungthang Town', 'Lachen Riverbank Basti', 'Lachung Confluence Hamlets'],
+    roadsAffected: ['North Sikkim Highway (Chungthang Axis KM 0-12)', 'Teesta-III Dam Access Road'],
+    threatenedBridges: ['Chungthang Suspension Bridge', 'Lachen–Lachung Confluence Bailey Span'],
+    criticalFacilities: ['Teesta-III Concrete Gravity Dam', 'Chungthang Sub-Divisional Hospital', 'Teesta Powerhouse Control Block']
   },
   // SIKKIM 2: HIGH - Mangan - Chungthang North Axis
   {

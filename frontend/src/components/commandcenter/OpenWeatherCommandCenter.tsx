@@ -1,45 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
-  Cloud,
-  CloudRain,
-  CloudLightning,
-  Sun,
-  Wind,
-  Droplets,
-  AlertTriangle,
-  Search,
-  Maximize2,
-  Minimize2,
-  ChevronLeft,
-  ChevronRight,
-  Play,
-  Pause,
-  Sliders,
-  FileText,
-  Activity,
-  Layers,
-  Thermometer,
   Shield,
-  MessageSquare,
-  Sparkles,
-  MapPin,
-  Clock,
-  CheckCircle2,
-  X,
-  Gauge,
-  HelpCircle,
-  Settings as SettingsIcon,
-  Radio,
-  TrendingUp,
-  Cpu,
-  Wifi,
-  WifiOff,
+  ShieldAlert,
+  Layers,
   Globe2,
-  Compass,
-  AlertCircle,
+  Activity,
+  CloudRain,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Sparkles,
+  ChevronRight,
+  ArrowUpRight,
+  MapPin,
   Building,
-  Navigation as NavIcon,
-  RotateCcw
+  Radio,
+  Zap,
+  History
 } from 'lucide-react';
 import {
   RiskZone,
@@ -51,16 +28,34 @@ import {
   SatelliteObservation,
   MultilingualAlert,
   EvidenceCard,
-  LanguageCode
+  LanguageCode,
+  ViewType,
+  AssessmentResult,
+  RiskAssessmentResult,
+  VerificationActionRequest,
+  BitemporalScenePair
 } from '../../types';
+import { OpenStreetMapViewer } from './OpenStreetMapViewer';
+import { SyntheticEarthViewer } from '../map3d/SyntheticEarthViewer';
+import { ExecutiveReportModal } from '../reports/ExecutiveReportModal';
+import { DataService } from '../../services/dataService';
 import { WeatherProviderOrchestrator } from '../../services/weatherProviderOrchestrator';
 import { RegionalWeatherReport, getWeatherDataForZone } from '../../data/command-centre/weatherData';
-import { OpenStreetMapViewer } from './OpenStreetMapViewer';
-import { RedZoneInspector } from '../intelligence/RedZoneInspector';
-import { getRiskBadgeClasses, getRiskColor, getRiskLevel, InterpretableRiskEngine } from '../../services/riskEngine';
-import { getAuthoritativeAOI, getPrimaryAOIForState, AUTHORITATIVE_AOIS } from '../../data/command-centre/aoiRegistry';
+import { getPrimaryAOIForState } from '../../data/command-centre/aoiRegistry';
 
-interface OpenWeatherCommandCenterProps {
+export type WeatherLayerType =
+  | 'precipitation'
+  | 'risk_heatmap'
+  | 'roads'
+  | 'villages'
+  | 'infrastructure'
+  | 'sensors'
+  | 'satellite_change'
+  | 'field_reports';
+
+export type SupportedState = 'Sikkim' | 'Assam';
+
+export interface OpenWeatherCommandCenterProps {
   zones: RiskZone[];
   selectedZone: RiskZone;
   onSelectZone: (zone: RiskZone) => void;
@@ -80,12 +75,9 @@ interface OpenWeatherCommandCenterProps {
   selectedLanguage?: LanguageCode;
   onSelectLanguage?: (lang: LanguageCode) => void;
   isOfflineMode?: boolean;
+  onSelectView?: (view: ViewType) => void;
+  onOpenReportModal?: () => void;
 }
-
-export type WeatherLayerType = 'precipitation' | 'risk_heatmap' | 'roads' | 'villages' | 'infrastructure' | 'sensors' | 'satellite_change' | 'field_reports';
-export type ForecastRange = '24h' | '7d' | 'historical';
-export type RightPanelTab = 'risk_intel' | 'priorities' | 'reports' | 'sensors' | 'alerts';
-export type SupportedState = 'Sikkim' | 'Assam';
 
 export const OpenWeatherCommandCenter: React.FC<OpenWeatherCommandCenterProps> = ({
   zones,
@@ -94,21 +86,15 @@ export const OpenWeatherCommandCenter: React.FC<OpenWeatherCommandCenterProps> =
   selectedState: parentSelectedState,
   onSelectState,
   metrics,
-  criticalEvents,
-  timeOffset,
-  onTimeChange,
-  onTriggerSOP,
-  roads = [],
+  criticalEvents = [],
+  timeOffset = 0,
   historicalEvents = [],
-  soilStations = [],
   satelliteObs = [],
-  alerts = [],
   evidenceCards = [],
-  selectedLanguage = 'en',
-  onSelectLanguage,
-  isOfflineMode = false
+  onSelectView,
+  onOpenReportModal
 }) => {
-  // State selection (Sync with parent or default to Sikkim)
+  // State selection (Sikkim / Assam)
   const activeStateName: SupportedState = parentSelectedState?.toLowerCase() === 'assam' ? 'Assam' : 'Sikkim';
   const [selectedState, setSelectedState] = useState<SupportedState>(activeStateName);
 
@@ -124,15 +110,15 @@ export const OpenWeatherCommandCenter: React.FC<OpenWeatherCommandCenterProps> =
     }
   }, [parentSelectedState]);
 
-  // Map Navigation & Extents (Default: Level 1 - India / Sikkim Level)
+  // Primary Map Viewport Coordinates
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number; zoom: number }>({
     lat: activeStateName === 'Assam' ? 25.1764 : 27.398,
     lng: activeStateName === 'Assam' ? 93.0238 : 88.535,
     zoom: activeStateName === 'Assam' ? 9.8 : 10.8
   });
 
-  // Layer Visibility State
-  const [activeLayers, setActiveLayers] = useState<Record<WeatherLayerType, boolean>>({
+  // Active Map Layers
+  const [activeLayers] = useState<Record<WeatherLayerType, boolean>>({
     precipitation: true,
     risk_heatmap: true,
     roads: true,
@@ -143,38 +129,103 @@ export const OpenWeatherCommandCenter: React.FC<OpenWeatherCommandCenterProps> =
     field_reports: true
   });
 
-  const [forecastRange, setForecastRange] = useState<ForecastRange>('24h');
-  const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('risk_intel');
-  const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
-  const [inspectingZone, setInspectingZone] = useState<RiskZone | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
-  const [isLeftSidebarCollapsed, setIsLeftSidebarCollapsed] = useState<boolean>(false);
+  // 2D Tactical GIS vs 3D Earth View Mode
+  const [mapViewMode, setMapViewMode] = useState<'2d' | '3d'>('2d');
 
-  // Time scrubber state
-  const timeSteps = ['12:30', '12:40', '12:50', '13:00', '13:10', '13:20', '13:30', '13:40', '13:50', '14:00', '14:10'];
-  const [activeTimeIndex, setActiveTimeIndex] = useState<number>(5);
-  const [isPlayingTime, setIsPlayingTime] = useState<boolean>(false);
+  // Authoritative Assessment & Risk Data States
+  const [assessmentResult, setAssessmentResult] = useState<AssessmentResult | null>(null);
+  const [riskResult, setRiskResult] = useState<RiskAssessmentResult | null>(null);
+  const [scenes, setScenes] = useState<BitemporalScenePair[]>([]);
+  const [selectedSceneId, setSelectedSceneId] = useState<string>('sikkim-nh10-dikchu-sector');
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false);
+  const [liveClock, setLiveClock] = useState<string>('');
 
-  // Live Weather Telemetry State (Dual Engine: Live OpenWeather with live satellite fallback)
-  const [weather, setWeather] = useState<RegionalWeatherReport>(
+  // Live Weather Telemetry
+  const [, setWeather] = useState<RegionalWeatherReport>(
     getWeatherDataForZone(selectedZone?.id, selectedZone?.state)
   );
-  const [isLiveApi, setIsLiveApi] = useState<boolean>(true);
-  const [apiStatusLabel, setApiStatusLabel] = useState<string>('Live OpenWeather Connected');
-  const [selectedForecastStep, setSelectedForecastStep] = useState<number>(0);
+  const [apiStatusLabel, setApiStatusLabel] = useState<string>('Copernicus Sentinel-2 & AWS Online');
 
-  // Auto-play time slider
+  // Clock ticker for operational display
   useEffect(() => {
-    let interval: any = null;
-    if (isPlayingTime) {
-      interval = setInterval(() => {
-        setActiveTimeIndex((prev) => (prev + 1) % timeSteps.length);
-      }, 1200);
-    }
+    const updateClock = () => {
+      const now = new Date();
+      setLiveClock(now.toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' IST');
+    };
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
     return () => clearInterval(interval);
-  }, [isPlayingTime, timeSteps.length]);
+  }, []);
 
-  // Handle State Switch (Sikkim <-> Assam)
+  // Fetch Available Scenes & Authoritative Data
+  useEffect(() => {
+    let isMounted = true;
+    const loadInitialData = async () => {
+      try {
+        const [availableScenes, defaultAssessment, defaultRisk] = await Promise.all([
+          DataService.getAssessmentScenes(),
+          DataService.getSceneResult(selectedSceneId),
+          DataService.getSikkimDemoRisk()
+        ]);
+
+        if (isMounted) {
+          setScenes(availableScenes);
+          setAssessmentResult(defaultAssessment);
+          setRiskResult(defaultRisk);
+        }
+      } catch (err) {
+        console.warn('Command Center data loading fallback:', err);
+      }
+    };
+
+    loadInitialData();
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedSceneId]);
+
+  // Load weather telemetry for active location
+  useEffect(() => {
+    let isCancelled = false;
+    const fetchTelemetry = async () => {
+      const lat = selectedZone?.lat || (selectedState === 'Sikkim' ? 27.398 : 25.176);
+      const lng = selectedZone?.lng || (selectedState === 'Sikkim' ? 88.535 : 93.024);
+      const zoneId = selectedZone?.id || (selectedState === 'Sikkim' ? 'sikkim-nh10-dikchu' : 'assam-dima-hasao-haflong');
+      const zoneName = selectedZone?.name || (selectedState === 'Sikkim' ? 'Dikchu-Singtam' : 'Haflong Ghat');
+
+      const res = await WeatherProviderOrchestrator.getRegionalWeatherReport(
+        lat,
+        lng,
+        zoneId,
+        zoneName,
+        selectedState,
+        selectedZone?.district
+      );
+      if (!isCancelled) {
+        setWeather(res.report);
+        setApiStatusLabel(res.errorStatus || 'Copernicus Sentinel-2 & AWS Online');
+      }
+    };
+
+    fetchTelemetry();
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedZone?.id, selectedZone?.lat, selectedZone?.lng, selectedZone?.name, selectedState]);
+
+  // Handle Structure Verification
+  const handleVerifyStructure = async (actionReq: VerificationActionRequest) => {
+    try {
+      const updated = await DataService.verifyStructure(actionReq);
+      setAssessmentResult(updated);
+      const updatedRisk = await DataService.getSikkimDemoRisk();
+      setRiskResult(updatedRisk);
+    } catch (err) {
+      console.error('Failed to verify structure from Command Center:', err);
+    }
+  };
+
+  // State Switching (Sikkim / Assam)
   const handleSwitchState = (state: SupportedState) => {
     setSelectedState(state);
     if (onSelectState) {
@@ -192,1256 +243,809 @@ export const OpenWeatherCommandCenter: React.FC<OpenWeatherCommandCenterProps> =
     }
   };
 
-  // Zoom preset handlers
-  const handleZoomLevel = (level: 'INDIA' | 'NORTHEAST' | 'STATE_AOI') => {
-    if (level === 'INDIA') {
-      setMapCenter({ lat: 22.8, lng: 82.5, zoom: 4.8 });
-    } else if (level === 'NORTHEAST') {
-      setMapCenter({ lat: 26.2, lng: 92.8, zoom: 6.8 });
-    } else {
-      if (selectedState === 'Sikkim') {
-        setMapCenter({ lat: 27.35, lng: 88.52, zoom: 11.2 });
-      } else {
-        setMapCenter({ lat: 25.18, lng: 93.02, zoom: 10.5 });
+  // Scene Switching
+  const handleSwitchScene = async (sceneId: string) => {
+    setSelectedSceneId(sceneId);
+    try {
+      const res = await DataService.getSceneResult(sceneId);
+      setAssessmentResult(res);
+      if (res.sceneMetadata?.location) {
+        setMapCenter({
+          lat: res.sceneMetadata.location.lat,
+          lng: res.sceneMetadata.location.lng,
+          zoom: 11.2
+        });
       }
+    } catch (err) {
+      console.error('Error switching scene:', err);
     }
   };
 
-  // Query Live Weather Data on Target Selection
-  useEffect(() => {
-    let isCancelled = false;
+  // Safe KPI calculations from authoritative data structures
+  const totalAssessmentsCount = (scenes.length > 0 ? scenes.length : 3) + (historicalEvents.length > 0 ? historicalEvents.length : 1);
+  const totalStructures = assessmentResult?.statistics?.totalStructures ?? 10;
+  const destroyedCount = assessmentResult?.statistics?.destroyedCount ?? 0;
+  const majorDamageCount = assessmentResult?.statistics?.majorDamageCount ?? 3;
+  const minorDamageCount = assessmentResult?.statistics?.minorDamageCount ?? 1;
+  const noDamageCount = assessmentResult?.statistics?.noDamageCount ?? 6;
+  const totalDamaged = destroyedCount + majorDamageCount + minorDamageCount;
+  
+  const changedAreaPct = assessmentResult?.changeDetection?.changePercentage ?? ((assessmentResult?.changeDetection?.changeScore ?? 0.385) * 100);
+  const changedAreaM2 = assessmentResult?.changeDetection?.changedAreaM2 ?? 89400;
+  
+  const rawRiskScore = riskResult?.overallRiskScore ?? (selectedZone?.landslide_probability ? selectedZone.landslide_probability * 100 : 84.7);
+  const compositeRiskScore = Math.min(100, Math.max(0, +rawRiskScore.toFixed(1)));
+  const riskSeverityLevel = riskResult?.riskLevel ?? (compositeRiskScore >= 75 ? 'CRITICAL' : compositeRiskScore >= 55 ? 'HIGH' : 'MODERATE');
 
-    const queryWeather = async () => {
-      const lat = selectedZone?.lat || (selectedState === 'Sikkim' ? 27.398 : 25.176);
-      const lng = selectedZone?.lng || (selectedState === 'Sikkim' ? 88.535 : 93.024);
-      const zoneId = selectedZone?.id || (selectedState === 'Sikkim' ? 'sikkim-nh10-dikchu' : 'assam-dima-hasao-haflong');
-      const zoneName = selectedZone?.name || (selectedState === 'Sikkim' ? 'Dikchu-Singtam' : 'Haflong Ghat');
-      const stateName = selectedState;
+  const verifiedStructuresCount = assessmentResult?.statistics?.verifiedCount ?? 4;
+  const verificationProgressPct = totalStructures > 0 ? Math.round((verifiedStructuresCount / totalStructures) * 100) : 40;
 
-      const res = await WeatherProviderOrchestrator.getRegionalWeatherReport(lat, lng, zoneId, zoneName, stateName, selectedZone?.district);
-      if (!isCancelled) {
-        setWeather(res.report);
-        setIsLiveApi(res.isLive);
-        setApiStatusLabel(res.errorStatus || 'Live IMD Primary / Weather Telemetry');
-      }
-    };
+  // Active Event & Metadata
+  const activeEventTitle = assessmentResult?.sceneMetadata?.title || selectedZone?.name || 'Sikkim Teesta Valley & NH-10 Corridor Inundation Assessment';
+  const activeLocationName = assessmentResult?.sceneMetadata?.location?.name || selectedZone?.name || 'Dikchu – Singtam Corridor (NH-10)';
+  const activeDistrict = assessmentResult?.sceneMetadata?.location?.district || selectedZone?.district || 'Pakyong';
+  const isSyntheticDemo = assessmentResult?.mode === 'DEMO' || assessmentResult?.sceneMetadata?.disclaimer?.includes('SYNTHETIC') || true;
+  const lastUpdatedTimestamp = assessmentResult?.sceneMetadata?.acquisitionDates?.after || '03 Sept 2026, 22:08 IST';
 
-    queryWeather();
+  // Dynamic Activity Timeline Events derived from actual platform events
+  const dynamicTimelineEvents = useMemo(() => {
+    const list: Array<{
+      id: string;
+      time: string;
+      type: 'SATELLITE' | 'CHANGE DETECTION' | 'DAMAGE ASSESSMENT' | 'RISK' | 'FORECAST' | 'FIELD VERIFICATION' | 'SYSTEM';
+      severity: 'CRITICAL' | 'WARNING' | 'INFO' | 'SUCCESS';
+      description: string;
+    }> = [];
 
-    return () => {
-      isCancelled = true;
-    };
-  }, [selectedZone?.id, selectedZone?.lat, selectedZone?.lng, selectedZone?.name, selectedState]);
-
-  // Multi-Factor Risk Calculation dynamically linked to rainfall telemetry via InterpretableRiskEngine
-  const isSikkim = selectedState === 'Sikkim';
-
-  // Evaluate dynamic multi-factor risk for the active zone using live/fallback rainfall telemetry
-  const activeZoneAnalysis = React.useMemo(() => {
-    const rain1h = weather?.rainfall1hMm;
-    const rain72h = weather?.rainfall72hMm;
-    const rainSrc = weather?.sourceCategory || (weather?.provenance?.includes('OpenWeather') ? 'LIVE' : weather?.provenance?.includes('Open-Meteo') ? 'FALLBACK' : 'SYNTHETIC');
-    const authAOI = getAuthoritativeAOI(selectedZone?.id || (isSikkim ? 'sikkim-nh10-dikchu' : 'assam-dima-hasao-haflong'));
-
-    return InterpretableRiskEngine.evaluateRisk({
-      zoneId: selectedZone?.id || authAOI?.id || (isSikkim ? 'sikkim-nh10-dikchu' : 'assam-dima-hasao-haflong'),
-      zoneName: selectedZone?.name || authAOI?.name || (isSikkim ? 'Dikchu – Singtam Sector' : 'Haflong Ghat Sector'),
-      state: selectedState,
-      district: selectedZone?.district || authAOI?.district || (isSikkim ? 'Pakyong' : 'Dima Hasao'),
-      lat: selectedZone?.lat || authAOI?.lat || (isSikkim ? 27.398 : 25.1764),
-      lng: selectedZone?.lng || authAOI?.lng || (isSikkim ? 88.535 : 93.0238),
-      elevation_m: selectedZone?.elevation_m || authAOI?.elevation_m || (isSikkim ? 850 : 680),
-      slope_deg: selectedZone?.slope_deg ?? authAOI?.geotechnicalInputs.slope_deg ?? (isSikkim ? 34.8 : 36.2),
-      soil_moisture_pct: selectedZone?.soil_moisture_pct ?? authAOI?.geotechnicalInputs.soil_moisture_pct ?? (isSikkim ? 84.0 : 88.0),
-      rainfall_1h_mm: rain1h,
-      rainfall_72h_mm: rain72h,
-      rainfall_source: rainSrc as any,
-      historical_events_5y: selectedZone?.historical_events_5y ?? authAOI?.geotechnicalInputs.historical_events_5y ?? (isSikkim ? 6 : 9),
-      lithology: selectedZone?.lithology || authAOI?.geotechnicalInputs.lithology || (isSikkim ? 'Weathered Biotite Gneiss & Mica Schist' : 'Disang Shale & Sandstone Alternation'),
-      soil_type: selectedZone?.soil_type || authAOI?.geotechnicalInputs.soil_type,
-      population_exposed: selectedZone?.population_exposed || authAOI?.associatedAssets.totalPopulationExposed || (isSikkim ? 1420 : 2100),
-      villages_exposed: selectedZone?.villages_exposed || authAOI?.associatedAssets.settlements.map(s => s.name) || (isSikkim ? ['Dikchu Basti', 'Lower Singtam', 'Melli Colony'] : ['Jatinga Valley Settlement', 'Lower Haflong Railway Colony']),
-      roads_affected: selectedZone?.roads_affected || authAOI?.associatedAssets.roads.map(r => r.name) || (isSikkim ? ['NH-10 Teesta Lifeline Road (KM 18-24)', 'Dikchu Bridge Approach'] : ['NH-27 East-West Corridor', 'Lumding-Badarpur Railway Line']),
-      critical_facilities: selectedZone?.critical_facilities_affected || authAOI?.associatedAssets.facilities.map(f => f.name) || (isSikkim ? ['Singtam Hydro Power Substation', 'Dikchu Primary Health Sub-Centre'] : ['Haflong Civil Hospital Access', 'Railway Traction Substation']),
-      threatened_bridges: authAOI?.associatedAssets.bridges.map(b => b.name) || (isSikkim ? ['Dikchu River Bridge'] : ['Diyung River Railway Span', 'Haflong Valley Viaduct']),
-      time_offset_min: timeOffset
-    });
-  }, [selectedZone, selectedState, weather, timeOffset, isSikkim]);
-
-  const riskScore = activeZoneAnalysis.riskScore;
-  const currentRiskLevel = activeZoneAnalysis.riskLevel;
-
-  // Landslide Risk Forecast Timeline Series (Calculated dynamically with rainfall scaling)
-  const riskForecastSteps = React.useMemo(() => {
-    const baseRain1h = weather?.rainfall1hMm || (isSikkim ? 34.2 : 28.5);
-    const baseRain72h = weather?.rainfall72hMm || (isSikkim ? 185.0 : 142.0);
-
-    const stepsConfig = [
-      { label: 'Current', mult1h: 1.0, mult72h: 1.0, offsetMin: 0, summary: isSikkim ? 'Pore pressure elevated' : 'Disang shale saturated' },
-      { label: '+3h', mult1h: 1.2, mult72h: 1.1, offsetMin: 30, summary: isSikkim ? 'Continued saturation' : 'Pore pressure surge' },
-      { label: '+6h', mult1h: 1.4, mult72h: 1.2, offsetMin: 60, summary: isSikkim ? 'Debris flow probable' : 'Shoulder slip risk' },
-      { label: '+12h', mult1h: 1.1, mult72h: 1.15, offsetMin: 120, summary: isSikkim ? 'Slow drainage' : 'Moderate runoff' },
-      { label: '+24h', mult1h: 0.7, mult72h: 0.9, offsetMin: 180, summary: isSikkim ? 'Gradual stabilization' : 'Stabilizing trend' }
-    ];
-
-    return stepsConfig.map(s => {
-      const stepRain1h = Math.round(baseRain1h * s.mult1h * 10) / 10;
-      const stepRain72h = Math.round(baseRain72h * s.mult72h * 10) / 10;
-
-      const stepOut = InterpretableRiskEngine.evaluateRisk({
-        zoneId: selectedZone?.id || (isSikkim ? 'sikkim-nh10-dikchu' : 'assam-dima-hasao-haflong'),
-        state: selectedState,
-        slope_deg: selectedZone?.slope_deg ?? (isSikkim ? 34.8 : 36.2),
-        soil_moisture_pct: selectedZone?.soil_moisture_pct ?? (isSikkim ? 84.0 : 88.0),
-        rainfall_1h_mm: stepRain1h,
-        rainfall_72h_mm: stepRain72h,
-        historical_events_5y: selectedZone?.historical_events_5y ?? (isSikkim ? 5 : 4),
-        lithology: selectedZone?.lithology || (isSikkim ? 'Weathered Biotite Gneiss & Quartz-Mica Schist' : 'Fractured Disang Shale & Fine Sandstone'),
-        time_offset_min: s.offsetMin
+    // 1. Critical Events from telemetry
+    criticalEvents.slice(0, 2).forEach((evt, i) => {
+      list.push({
+        id: `crit-${i}`,
+        time: evt.time_ago || '22:08 IST',
+        type: 'RISK',
+        severity: evt.severity === 'CRITICAL' ? 'CRITICAL' : 'WARNING',
+        description: `${evt.location}: ${evt.affected_infrastructure} (${evt.recommended_action})`
       });
-
-      return {
-        label: s.label,
-        rain: stepRain1h,
-        riskScore: stepOut.riskScore,
-        level: stepOut.riskLevel,
-        summary: s.summary
-      };
     });
-  }, [weather, selectedZone, selectedState, isSikkim]);
 
-  // Dynamic Response Priorities
-  const responsePriorities = isSikkim ? [
-    {
-      id: 'RP-SK-01',
-      rank: 1,
-      target: 'NH-10 (KM 19 Dikchu-Singtam)',
-      threatLevel: 'CRITICAL',
-      recommendedAction: 'Field inspection required; prepare traffic diversion via NH-717A Pakyong.',
-      leadAgency: 'BRO / Sikkim Police',
-      status: 'Action Required'
-    },
-    {
-      id: 'RP-SK-02',
-      rank: 2,
-      target: 'Dikchu (Mile 14 Settlement)',
-      threatLevel: 'HIGH',
-      recommendedAction: 'Verify slope condition; check tension cracks on upper hillside.',
-      leadAgency: 'SDRF Pakyong',
-      status: 'Field Inspection'
-    },
-    {
-      id: 'RP-SK-03',
-      rank: 3,
-      target: 'Singtam (Indreni Bridge Abutment)',
-      threatLevel: 'HIGH',
-      recommendedAction: 'Continue monitoring river head and culvert discharge.',
-      leadAgency: 'NHPC / Irrigation Dept',
-      status: 'Monitoring'
-    },
-    {
-      id: 'RP-SK-04',
-      rank: 4,
-      target: 'Rangpo & Pakyong Bypass (NH-717A)',
-      threatLevel: 'MODERATE',
-      recommendedAction: 'Maintain bypass readiness; inspect road drainage channels.',
-      leadAgency: 'Sikkim PWD',
-      status: 'Standby'
+    // 2. Satellite observations
+    if (satelliteObs && satelliteObs.length > 0) {
+      const sat = satelliteObs[0];
+      list.push({
+        id: 'sat-0',
+        time: '21:45 IST',
+        type: 'SATELLITE',
+        severity: 'INFO',
+        description: `Sentinel-2 MSI bitemporal acquisition for ${sat.target_sector || activeDistrict} (${sat.surface_change_indicator || '10m GSD'}).`
+      });
+    } else {
+      list.push({
+        id: 'sat-fallback',
+        time: '21:45 IST',
+        type: 'SATELLITE',
+        severity: 'INFO',
+        description: `Copernicus Sentinel-2 pass ingested (10m L2A GSD).`
+      });
     }
-  ] : [
-    {
-      id: 'RP-AS-01',
-      rank: 1,
-      target: 'NH-27 (Haflong Ghat Hill Corridor)',
-      threatLevel: 'CRITICAL',
-      recommendedAction: 'Field inspection required on rotational slump zone; regulate single-lane convoy.',
-      leadAgency: 'Assam PWD / NHAI',
-      status: 'Action Required'
-    },
-    {
-      id: 'RP-AS-02',
-      rank: 2,
-      target: 'NF Railway Lumding-Badarpur Cut-Slope',
-      threatLevel: 'HIGH',
-      recommendedAction: 'Inspect track ballast drainage and rockfall safety nets.',
-      leadAgency: 'NFR Engineering Wing',
-      status: 'Field Inspection'
-    },
-    {
-      id: 'RP-AS-03',
-      rank: 3,
-      target: 'Haflong Civil Hospital Access Road',
-      threatLevel: 'HIGH',
-      recommendedAction: 'Clear culvert sediment runoff to preserve emergency ambulance access.',
-      leadAgency: 'Dima Hasao Civil Defense',
-      status: 'Monitoring'
-    }
-  ];
 
-  // Field Reports List
-  const fieldReportsList = isSikkim ? [
-    {
-      id: 'INC-2026-0917',
-      location: 'NH-10 / KM 19 (Dikchu Sector)',
-      reportType: 'Road obstruction & tension crack',
-      timestamp: '13:16 IST',
-      verificationStatus: 'Pending',
-      source: 'BRO Sector Ranger',
-      detail: '8cm tension crack detected along outer road shoulder following 34mm rainfall.'
-    },
-    {
-      id: 'INC-2026-0914',
-      location: 'Singtam Indreni Suspension Bridge',
-      reportType: 'Debris seepage from culvert',
-      timestamp: '12:44 IST',
-      verificationStatus: 'Verified',
-      source: 'Ward Field Observer',
-      detail: 'Heavy silt runoff exiting drainage outlet; bridge footing clear.'
-    },
-    {
-      id: 'INC-2026-0911',
-      location: 'Upper Martam Ridge Valley Sector',
-      reportType: 'Roadside ditch seepage',
-      timestamp: '11:15 IST',
-      verificationStatus: 'Verified',
-      source: 'Gram Panchayat Monitor',
-      detail: 'Minor colluvial seepage entering roadside culvert; road clear and open.'
+    // 3. Truth Loop Field Verifications
+    if (evidenceCards && evidenceCards.length > 0) {
+      const ev = evidenceCards[0];
+      list.push({
+        id: `truth-${ev.id}`,
+        time: ev.timestamp || '20:15 IST',
+        type: 'FIELD VERIFICATION',
+        severity: 'SUCCESS',
+        description: `Field Officer verified structure ${ev.location}: ${ev.incident_type} (${ev.action_taken || 'Verified'})`
+      });
+    } else {
+      list.push({
+        id: 'truth-fallback',
+        time: '20:15 IST',
+        type: 'FIELD VERIFICATION',
+        severity: 'SUCCESS',
+        description: `Ground Ranger verified Singtam Bridge approach pier stability.`
+      });
     }
-  ] : [
+
+    // 4. Damage Engine event
+    if (assessmentResult) {
+      list.push({
+        id: 'dmg-evt',
+        time: '18:30 IST',
+        type: 'DAMAGE ASSESSMENT',
+        severity: 'WARNING',
+        description: `${assessmentResult.statistics?.totalStructures || 10} footprints evaluated (${totalDamaged} classified damaged, ${noDamageCount} intact).`
+      });
+    }
+
+    return list;
+  }, [criticalEvents, satelliteObs, evidenceCards, assessmentResult, activeDistrict, totalDamaged, noDamageCount]);
+
+  // Operational Pipeline Stages
+  const pipelineStages = [
     {
-      id: 'INC-2026-0882',
-      location: 'NH-27 / Haflong Ghat Corridor',
-      reportType: 'Rotational shoulder slump',
-      timestamp: '11:20 IST',
-      verificationStatus: 'Verified',
-      source: 'Assam Highway Patrol',
-      detail: 'Single-lane traffic operating under convoy supervision; clearing crew deployed.'
+      id: 'satellite',
+      name: 'SATELLITE CONNECTED',
+      view: 'satellite_view' as ViewType,
+      status: 'ONLINE',
+      detail: 'Copernicus Sentinel-2 MSI (10m L2A)',
+      badgeColor: 'text-[#10B981] bg-[#10B981]/15 border-[#10B981]/30',
+      dotColor: 'bg-[#10B981]'
     },
     {
-      id: 'INC-2026-0879',
-      location: 'Jatinga Valley Approach Road',
-      reportType: 'Minor rockfall debris on shoulder',
-      timestamp: '09:40 IST',
-      verificationStatus: 'Resolved',
-      source: 'PWD Patrol Unit',
-      detail: 'Loose sandstone boulders cleared into shoulder ditch.'
+      id: 'change',
+      name: 'CHANGE ANALYSIS',
+      view: 'change_detection' as ViewType,
+      status: 'COMPLETED',
+      detail: `${changedAreaPct.toFixed(1)}% altered (${(changedAreaM2 / 1000).toFixed(1)}k m²)`,
+      badgeColor: 'text-[#10B981] bg-[#10B981]/15 border-[#10B981]/30',
+      dotColor: 'bg-[#10B981]'
     },
     {
-      id: 'INC-2026-0875',
-      location: 'NF Railway Lumding-Badarpur KM 44',
-      reportType: 'Trackside drainage overflow',
-      timestamp: '08:30 IST',
-      verificationStatus: 'Pending',
-      source: 'NFR Track Patrol',
-      detail: 'Ballast silt accumulation observed during inspection patrol; maintenance alert issued.'
+      id: 'damage',
+      name: 'DAMAGE ASSESSMENT',
+      view: 'damage_assessment' as ViewType,
+      status: 'CALCULATED',
+      detail: `${majorDamageCount} Major · ${minorDamageCount} Minor · ${noDamageCount} Intact`,
+      badgeColor: 'text-[#F59E0B] bg-[#F59E0B]/15 border-[#F59E0B]/30',
+      dotColor: 'bg-[#F59E0B]'
+    },
+    {
+      id: 'risk',
+      name: 'RISK ANALYSIS',
+      view: 'risk_intelligence' as ViewType,
+      status: 'ACTIVE',
+      detail: `Composite Index: ${compositeRiskScore}/100 (${riskSeverityLevel})`,
+      badgeColor: 'text-[#EF4444] bg-[#EF4444]/15 border-[#EF4444]/30',
+      dotColor: 'bg-[#EF4444]'
+    },
+    {
+      id: 'forecast',
+      name: 'FORECAST',
+      view: 'forecast' as ViewType,
+      status: 'MONITORING',
+      detail: '6h / 24h Early Warning Horizon',
+      badgeColor: 'text-[#06B6D4] bg-[#06B6D4]/15 border-[#06B6D4]/30',
+      dotColor: 'bg-[#06B6D4]'
+    },
+    {
+      id: 'truth_loop',
+      name: 'FIELD VERIFICATION',
+      view: 'truth_loop' as ViewType,
+      status: 'IN PROGRESS',
+      detail: `${verifiedStructuresCount}/${totalStructures} Footprints Ground Verified`,
+      badgeColor: 'text-[#8B5CF6] bg-[#8B5CF6]/15 border-[#8B5CF6]/30',
+      dotColor: 'bg-[#8B5CF6]'
     }
   ];
 
-  // Sensor Stats
-  const sensorStats = isSikkim ? {
-    totalNodes: 24,
-    onlineNodes: 22,
-    warningNodes: 3,
-    criticalNodes: [
-      { id: 'SN-DKC-04', type: 'Vibrating Wire Piezometer', location: 'Dikchu Toe Slope', val: '142 kPa', status: 'Elevated', normal: '< 85 kPa', lastPing: '13:18 IST' },
-      { id: 'SN-SGT-02', type: 'Biaxial MEMS Tiltmeter', location: 'Singtam Indreni Abutment', val: '4.8°/hr', status: 'Warning', normal: '< 1.5°', lastPing: '13:19 IST' },
-      { id: 'SN-NH10-09', type: 'TDR Soil Moisture Probe', location: 'NH-10 KM 19 Cut', val: '86% Saturation', status: 'High', normal: '< 65%', lastPing: '13:15 IST' },
-      { id: 'SN-AWS-IMD', type: 'Optical Pluviometer', location: 'Singtam AWS Station', val: '38.4 mm/hr', status: 'Active', normal: '< 15 mm/hr', lastPing: '13:20 IST' }
-    ]
-  } : {
-    totalNodes: 18,
-    onlineNodes: 17,
-    warningNodes: 2,
-    criticalNodes: [
-      { id: 'SN-HFL-01', type: 'Piezometer Probe', location: 'Haflong Ghat Slump', val: '128 kPa', status: 'Elevated', normal: '< 80 kPa', lastPing: '13:14 IST' },
-      { id: 'SN-NFR-03', type: 'Tiltmeter Node', location: 'Railway Cut KM 42', val: '3.9°/hr', status: 'Warning', normal: '< 1.5°', lastPing: '13:16 IST' },
-      { id: 'SN-TDR-AS02', type: 'TDR Soil Moisture Sensor', location: 'Haflong Valley Ridge', val: '88% Saturation', status: 'High', normal: '< 65%', lastPing: '13:17 IST' },
-      { id: 'SN-AWS-HFL', type: 'IMD Rain Gauge', location: 'Haflong Town Station', val: '42.0 mm/hr', status: 'Active', normal: '< 15 mm/hr', lastPing: '13:20 IST' }
-    ]
-  };
+  // Quick Action Matrix Configurations
+  const quickActions = [
+    {
+      id: 'change_detection',
+      title: 'Change Detection',
+      tagline: 'What changed',
+      view: 'change_detection' as ViewType,
+      icon: Layers,
+      color: 'hover:border-[#06B6D4] hover:text-[#06B6D4]'
+    },
+    {
+      id: 'damage_assessment',
+      title: 'Damage Assessment',
+      tagline: 'What was damaged',
+      view: 'damage_assessment' as ViewType,
+      icon: ShieldAlert,
+      color: 'hover:border-[#F97316] hover:text-[#F97316]'
+    },
+    {
+      id: 'risk_intelligence',
+      title: 'Risk Matrix',
+      tagline: 'Multi-factor susceptibility',
+      view: 'risk_intelligence' as ViewType,
+      icon: Activity,
+      color: 'hover:border-[#EF4444] hover:text-[#EF4444]'
+    },
+    {
+      id: 'forecast',
+      title: 'Forecast',
+      tagline: '6h / 24h early warning',
+      view: 'forecast' as ViewType,
+      icon: CloudRain,
+      color: 'hover:border-[#38BDF8] hover:text-[#38BDF8]'
+    },
+    {
+      id: 'historical_view',
+      title: 'History',
+      tagline: 'Completed assessments',
+      view: 'historical_view' as ViewType,
+      icon: History,
+      color: 'hover:border-[#A855F7] hover:text-[#A855F7]'
+    },
+    {
+      id: 'map_3d',
+      title: '3D Earth',
+      tagline: 'Spatial 3D exploration',
+      view: 'map_3d' as ViewType,
+      icon: Globe2,
+      color: 'hover:border-[#10B981] hover:text-[#10B981]'
+    }
+  ];
 
-  const toggleLayer = (layer: WeatherLayerType) => {
-    setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
-  };
-
-  const getThreatBadge = (level: string) => {
-    return getRiskBadgeClasses(level as any);
+  const handleOpenReport = () => {
+    if (onOpenReportModal) {
+      onOpenReportModal();
+    } else {
+      setIsReportModalOpen(true);
+    }
   };
 
   return (
-    <div className={`h-full w-full flex overflow-hidden font-sans select-none border-0 ${
-      isDarkMode ? 'bg-[#12151B] text-[#ECEFF1]' : 'bg-[#FAF8F1] text-[#172126]'
-    }`}>
+    <div className="flex-1 flex flex-col min-h-0 h-full w-full bg-[#0B1118] text-[#E2E8F0] font-sans select-none overflow-hidden">
       {/* ========================================================================= */}
-      {/* 1. LEFT SIDEBAR NAVIGATION (Matching Top-Left Epoch Brand Typography) */}
+      {/* 1. TOP STATUS BAR                                                         */}
       {/* ========================================================================= */}
-      <aside className={`flex flex-col justify-between p-3 border-r shrink-0 transition-all duration-300 ${
-        isLeftSidebarCollapsed ? 'w-16' : 'w-56'
-      } ${isDarkMode ? 'bg-[#161922] border-[#242833]' : 'bg-[#F2EFE8] border-[#D7DEDC]'}`}>
-        {/* Top: Logo & System Identity */}
-        <div className="flex flex-col space-y-3.5">
-          {/* Logo & Collapse button */}
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col leading-tight">
-              <div className="flex items-baseline space-x-1.5">
-                <span className="font-brand text-3xl text-white font-normal italic select-none leading-none">
-                  Epoch
-                </span>
-                {!isLeftSidebarCollapsed && (
-                  <span className="text-[10px] text-[#8E99A8] font-mono tracking-tight uppercase">
-                    Command
-                  </span>
-                )}
-              </div>
-              {!isLeftSidebarCollapsed && (
-                <span className="text-[9px] text-[#667579] font-mono">
-                  SIH26001 · Disaster Ops
-                </span>
-              )}
-            </div>
-
-            <button
-              onClick={() => setIsLeftSidebarCollapsed(!isLeftSidebarCollapsed)}
-              className="p-1 rounded-lg text-[#8E99A8] hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
-              title="Toggle Sidebar"
-            >
-              <ChevronLeft className={`w-4 h-4 transition-transform ${isLeftSidebarCollapsed ? 'rotate-180' : ''}`} />
-            </button>
+      <header className="bg-[#0F1722] border-b border-[#1E2D3D] px-4 py-2 shrink-0 flex flex-wrap items-center justify-between gap-3 text-xs z-20 shadow-md">
+        {/* Left: Brand Identity & Active Event Title */}
+        <div className="flex items-center space-x-3 min-w-0">
+          <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#167F78]/20 border border-[#167F78]/40 text-[#167F78] font-mono font-bold tracking-wider text-[11px]">
+            <Radio className="w-3.5 h-3.5 text-[#167F78] animate-pulse" />
+            <span>SATGUARD CMD</span>
           </div>
 
-          {/* Supported Operational State Switcher (Sikkim & Assam) */}
-          {!isLeftSidebarCollapsed && (
-            <div className="flex flex-col space-y-1.5 p-2 rounded-xl bg-[#1C202B] border border-[#282E3C]">
-              <span className="text-[10px] font-mono text-[#8E99A8] uppercase tracking-wider font-semibold">
-                Operational State:
+          <div className="h-4 w-[1px] bg-[#1E2D3D] hidden sm:block" />
+
+          {/* Active Event & Sector */}
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold text-[#F8FAFC] truncate text-xs tracking-wide">
+                {activeEventTitle}
               </span>
-              <div className="grid grid-cols-2 gap-1 text-xs">
-                <button
-                  onClick={() => handleSwitchState('Sikkim')}
-                  className={`py-1.5 px-2 rounded-lg font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer ${
-                    selectedState === 'Sikkim'
-                      ? 'bg-[#167F78] text-white shadow-sm'
-                      : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <span>🏔️ Sikkim</span>
-                </button>
-                <button
-                  onClick={() => handleSwitchState('Assam')}
-                  className={`py-1.5 px-2 rounded-lg font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer ${
-                    selectedState === 'Assam'
-                      ? 'bg-[#587A68] text-white shadow-sm'
-                      : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  <span>🌿 Assam</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Primary Navigation Items */}
-          <nav className="flex flex-col space-y-1 text-xs">
-            <button
-              onClick={() => setRightPanelTab('risk_intel')}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all cursor-pointer ${
-                rightPanelTab === 'risk_intel'
-                  ? (isDarkMode ? 'bg-[#2A2220] text-[#F97316] border border-[#EA580C]/30 font-semibold' : 'bg-[#167F78] text-white')
-                  : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Activity className="w-4 h-4 shrink-0 text-[#EA580C]" />
-                {!isLeftSidebarCollapsed && <span>Risk Intelligence</span>}
-              </div>
-              {!isLeftSidebarCollapsed && (
-                <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#EA580C]/20 text-[#EA580C] font-mono font-bold">
-                  {riskScore}/100
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setRightPanelTab('priorities')}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all cursor-pointer ${
-                rightPanelTab === 'priorities'
-                  ? (isDarkMode ? 'bg-[#2A2220] text-[#F97316] border border-[#EA580C]/30 font-semibold' : 'bg-[#167F78] text-white')
-                  : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Shield className="w-4 h-4 shrink-0" />
-                {!isLeftSidebarCollapsed && <span>Response Priority</span>}
-              </div>
-              {!isLeftSidebarCollapsed && (
-                <span className="w-4 h-4 rounded-full bg-[#EA580C] text-white text-[10px] font-bold flex items-center justify-center">
-                  {responsePriorities.length}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setRightPanelTab('reports')}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all cursor-pointer ${
-                rightPanelTab === 'reports'
-                  ? (isDarkMode ? 'bg-[#2A2220] text-[#F97316] border border-[#EA580C]/30 font-semibold' : 'bg-[#167F78] text-white')
-                  : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <FileText className="w-4 h-4 shrink-0" />
-                {!isLeftSidebarCollapsed && <span>Field Reports</span>}
-              </div>
-              {!isLeftSidebarCollapsed && (
-                <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#10B981]/15 text-[#10B981] font-mono">
-                  {fieldReportsList.length} Logs
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setRightPanelTab('sensors')}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all cursor-pointer ${
-                rightPanelTab === 'sensors'
-                  ? (isDarkMode ? 'bg-[#2A2220] text-[#F97316] border border-[#EA580C]/30 font-semibold' : 'bg-[#167F78] text-white')
-                  : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <Cpu className="w-4 h-4 shrink-0" />
-                {!isLeftSidebarCollapsed && <span>Sensor Status</span>}
-              </div>
-              {!isLeftSidebarCollapsed && (
-                <span className="text-[10px] font-mono text-[#10B981]">
-                  {sensorStats.onlineNodes}/{sensorStats.totalNodes} OK
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={() => setRightPanelTab('alerts')}
-              className={`flex items-center justify-between px-3 py-2 rounded-xl font-medium transition-all cursor-pointer ${
-                rightPanelTab === 'alerts'
-                  ? (isDarkMode ? 'bg-[#2A2220] text-[#F97316] border border-[#EA580C]/30 font-semibold' : 'bg-[#167F78] text-white')
-                  : 'text-[#8E99A8] hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center space-x-3">
-                <AlertTriangle className="w-4 h-4 shrink-0 text-[#F59E0B]" />
-                {!isLeftSidebarCollapsed && <span>CAP Early Warning</span>}
-              </div>
-              {!isLeftSidebarCollapsed && (
-                <span className="w-2 h-2 rounded-full bg-[#EA580C]" />
-              )}
-            </button>
-          </nav>
-
-          {/* Multilingual Switcher & Sync Status */}
-          {!isLeftSidebarCollapsed && (
-            <div className="p-2.5 rounded-xl bg-[#1C202B] border border-[#282E3C] flex flex-col space-y-2 text-xs">
-              <div className="flex items-center justify-between text-[#8E99A8]">
-                <span className="flex items-center space-x-1">
-                  <Globe2 className="w-3.5 h-3.5" />
-                  <span>Language</span>
-                </span>
-                <div className="flex items-center space-x-1">
-                  {(['en', 'hi', 'as', 'bn'] as LanguageCode[]).map((lng) => (
-                    <button
-                      key={lng}
-                      onClick={() => onSelectLanguage && onSelectLanguage(lng)}
-                      className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase transition-colors cursor-pointer ${
-                        selectedLanguage === lng ? 'bg-[#EA580C] text-white' : 'text-[#8E99A8] hover:text-white'
-                      }`}
-                    >
-                      {lng}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-1 border-t border-[#282E3C] text-[10px] font-mono">
-                <span className="text-[#8E99A8] flex items-center space-x-1">
-                  {isOfflineMode ? <WifiOff className="w-3 h-3 text-[#F59E0B]" /> : <Wifi className="w-3 h-3 text-[#10B981]" />}
-                  <span>Sync</span>
-                </span>
-                <span className={isOfflineMode ? 'text-[#F59E0B] font-bold' : 'text-[#10B981] font-bold'}>
-                  {isOfflineMode ? 'LOCAL CACHE' : 'ONLINE SYNC'}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom: Response Recommendation & Dark Mode Switch */}
-        <div className="flex flex-col space-y-2 pt-2.5 border-t border-[#242833]">
-          <button
-            onClick={() => setIsAiModalOpen(true)}
-            className="w-full py-2 px-3 rounded-xl bg-[#EA580C] text-white text-xs font-semibold hover:bg-[#F97316] transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            {!isLeftSidebarCollapsed && <span>Response Plan</span>}
-          </button>
-
-          {!isLeftSidebarCollapsed && (
-            <div className="flex items-center justify-between px-2 pt-1 text-xs text-[#8E99A8]">
-              <span className="flex items-center space-x-1.5">
-                <Sun className="w-3.5 h-3.5" />
-                <span>Dark theme</span>
+              <span className="text-[#64748B] hidden md:inline">|</span>
+              <span className="text-[#94A3B8] hidden md:inline truncate text-[11px] font-mono">
+                {activeLocationName}, {selectedState}
               </span>
-              <button
-                onClick={() => setIsDarkMode(!isDarkMode)}
-                className={`w-8 h-4 rounded-full p-0.5 transition-colors cursor-pointer ${
-                  isDarkMode ? 'bg-[#EA580C]' : 'bg-[#4B5563]'
-                }`}
-              >
-                <div className={`w-3 h-3 rounded-full bg-white transition-transform ${
-                  isDarkMode ? 'translate-x-4' : 'translate-x-0'
-                }`} />
-              </button>
             </div>
-          )}
-        </div>
-      </aside>
-
-      {/* ========================================================================= */}
-      {/* 2. CENTER OPERATIONAL GIS VIEWPORT (REAL OPENSTREETMAP BASEMAP) */}
-      {/* ========================================================================= */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Top Header Toolbar: Zoom Extents & Layer Controls */}
-        <div className={`px-4 py-2 border-b flex flex-wrap items-center justify-between gap-2 shrink-0 ${
-          isDarkMode ? 'bg-[#161922] border-[#242833]' : 'bg-[#FAF8F1] border-[#D7DEDC]'
-        }`}>
-          {/* Zoom Extent Level Buttons (India -> Northeast -> State AOI) */}
-          <div className="flex items-center space-x-1.5">
-            <span className="text-[10px] font-mono text-[#8E99A8] uppercase tracking-wider font-semibold mr-1">
-              Zoom:
-            </span>
-            <button
-              onClick={() => handleZoomLevel('INDIA')}
-              className={`px-2 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                mapCenter.zoom < 6 ? 'bg-[#167F78] text-white shadow-sm' : 'bg-[#1C202B] text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              🇮🇳 All India
-            </button>
-            <button
-              onClick={() => handleZoomLevel('NORTHEAST')}
-              className={`px-2 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
-                mapCenter.zoom >= 6 && mapCenter.zoom < 9 ? 'bg-[#167F78] text-white shadow-sm' : 'bg-[#1C202B] text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              🧭 Northeast (NER)
-            </button>
-            <button
-              onClick={() => handleZoomLevel('STATE_AOI')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
-                mapCenter.zoom >= 9 ? 'bg-[#EA580C] text-white shadow-sm' : 'bg-[#1C202B] text-[#EA580C] hover:bg-[#EA580C]/20'
-              }`}
-            >
-              📍 {selectedState === 'Sikkim' ? 'Dikchu–Singtam (Sikkim)' : 'Haflong Ghat (Assam)'}
-            </button>
           </div>
+        </div>
 
-          {/* Data Engine Provenance Badge */}
-          <div className="flex items-center space-x-3 text-xs font-mono">
-            <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] text-[11px]">
+        {/* Right: Data Mode, Sync & Region Switchers */}
+        <div className="flex items-center space-x-3 shrink-0">
+          {/* Real vs Synthetic Mode Badge */}
+          {isSyntheticDemo ? (
+            <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#C58A24]/15 border border-[#C58A24]/40 text-[#F59E0B] font-mono text-[10px] font-semibold tracking-wider">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F59E0B] animate-ping" />
+              <span>SYNTHETIC DEMONSTRATION</span>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#10B981]/15 border border-[#10B981]/40 text-[#10B981] font-mono text-[10px] font-semibold tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-              <span>WEATHER: OPENWEATHER API (LIVE)</span>
+              <span>REAL / VERIFIED DATA</span>
             </div>
+          )}
 
-            <span className="text-[11px] text-[#8E99A8] hidden md:inline">
-              Sync: {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST
+          {/* Region Switcher (Sikkim / Assam) */}
+          <div className="flex items-center bg-[#131D2A] border border-[#1E2D3D] rounded-md p-0.5">
+            <button
+              onClick={() => handleSwitchState('Sikkim')}
+              className={`px-2.5 py-0.5 rounded text-[11px] font-semibold transition-all cursor-pointer ${
+                selectedState === 'Sikkim'
+                  ? 'bg-[#167F78] text-white shadow-sm'
+                  : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+              }`}
+            >
+              Sikkim
+            </button>
+            <button
+              onClick={() => handleSwitchState('Assam')}
+              className={`px-2.5 py-0.5 rounded text-[11px] font-semibold transition-all cursor-pointer ${
+                selectedState === 'Assam'
+                  ? 'bg-[#167F78] text-white shadow-sm'
+                  : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+              }`}
+            >
+              Assam
+            </button>
+          </div>
+
+          {/* Last Update & Live Clock */}
+          <div className="hidden lg:flex items-center space-x-2 text-[11px] font-mono text-[#94A3B8] bg-[#131D2A] border border-[#1E2D3D] px-2.5 py-1 rounded">
+            <Clock className="w-3.5 h-3.5 text-[#64748B]" />
+            <span>Updated: <strong className="text-[#E2E8F0]">{lastUpdatedTimestamp}</strong></span>
+            <span className="text-[#1E2D3D]">|</span>
+            <span className="text-[#10B981] font-semibold">{liveClock}</span>
+          </div>
+
+          {/* Connection Status Pill */}
+          <div className="hidden xl:flex items-center space-x-1.5 text-[11px] text-[#10B981] bg-[#10B981]/10 border border-[#10B981]/20 px-2 py-0.5 rounded font-mono">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
+            <span>{apiStatusLabel}</span>
+          </div>
+        </div>
+      </header>
+
+      {/* ========================================================================= */}
+      {/* 2. EXECUTIVE KPI BANNER                                                    */}
+      {/* ========================================================================= */}
+      <section className="bg-[#0D1520] border-b border-[#1E2D3D] px-4 py-2 shrink-0 grid grid-cols-2 md:grid-cols-5 gap-2.5 z-10">
+        {/* KPI 1: Active Assessments */}
+        <div className="bg-[#131D2A] border border-[#1E2D3D] rounded-lg p-2.5 flex flex-col justify-between hover:border-[#2A3F55] transition-colors">
+          <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider">
+            <span>ASSESSMENTS</span>
+            <FileText className="w-3.5 h-3.5 text-[#06B6D4]" />
+          </div>
+          <div className="flex items-baseline space-x-2 mt-1">
+            <span className="text-xl font-bold font-mono text-[#F8FAFC]">
+              {String(totalAssessmentsCount).padStart(2, '0')}
             </span>
+            <span className="text-[10px] text-[#10B981] font-mono">
+              ACTIVE SUITE
+            </span>
+          </div>
+          <div className="text-[10px] text-[#64748B] font-mono mt-0.5 truncate">
+            {scenes.length} Scenes · {historicalEvents.length} Archives
           </div>
         </div>
 
-        {/* Center: Main OpenStreetMap Interactive Map Canvas */}
-        <div className="flex-1 relative min-h-0 bg-[#E5E3DF] overflow-hidden">
-          {/* Top Layer Toggles Toolbar */}
-          <div className="absolute top-3 left-4 flex items-center space-x-2 z-20 max-w-[calc(100%-120px)] overflow-x-auto pb-1">
-            <div className="flex items-center bg-[#161922]/95 border border-[#242833] p-1 rounded-xl shadow-lg text-xs space-x-1 shrink-0">
-              <button
-                onClick={() => toggleLayer('precipitation')}
-                className={`flex items-center space-x-1.5 px-2 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                  activeLayers.precipitation ? 'bg-[#2A2220] text-[#EA580C] font-semibold' : 'text-[#8E99A8] hover:text-white'
-                }`}
-              >
-                <CloudRain className="w-3.5 h-3.5 text-[#EA580C]" />
-                <span>Precipitation</span>
-              </button>
+        {/* KPI 2: Structures Assessed */}
+        <div className="bg-[#131D2A] border border-[#1E2D3D] rounded-lg p-2.5 flex flex-col justify-between hover:border-[#2A3F55] transition-colors">
+          <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider">
+            <span>STRUCTURES ASSESSED</span>
+            <Building className="w-3.5 h-3.5 text-[#F97316]" />
+          </div>
+          <div className="flex items-baseline space-x-2 mt-1">
+            <span className="text-xl font-bold font-mono text-[#F8FAFC]">
+              {String(totalStructures).padStart(2, '0')}
+            </span>
+            <span className="text-[10px] text-[#F97316] font-mono font-semibold">
+              {totalDamaged} DAMAGED
+            </span>
+          </div>
+          <div className="text-[10px] text-[#64748B] font-mono mt-0.5 truncate">
+            {destroyedCount} Dest · {majorDamageCount} Maj · {noDamageCount} Intact
+          </div>
+        </div>
 
-              <button
-                onClick={() => toggleLayer('risk_heatmap')}
-                className={`flex items-center space-x-1.5 px-2 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                  activeLayers.risk_heatmap ? 'bg-[#2A2220] text-[#EA580C] font-semibold' : 'text-[#8E99A8] hover:text-white'
-                }`}
-              >
-                <Activity className="w-3.5 h-3.5" />
-                <span>Landslide Risk</span>
-              </button>
+        {/* KPI 3: Changed Area */}
+        <div className="bg-[#131D2A] border border-[#1E2D3D] rounded-lg p-2.5 flex flex-col justify-between hover:border-[#2A3F55] transition-colors">
+          <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider">
+            <span>CHANGED AREA</span>
+            <Layers className="w-3.5 h-3.5 text-[#EAB308]" />
+          </div>
+          <div className="flex items-baseline space-x-2 mt-1">
+            <span className="text-xl font-bold font-mono text-[#F8FAFC]">
+              {changedAreaPct.toFixed(1)}%
+            </span>
+            <span className="text-[10px] text-[#EAB308] font-mono">
+              {(changedAreaM2 / 1000).toFixed(1)}k m²
+            </span>
+          </div>
+          <div className="text-[10px] text-[#64748B] font-mono mt-0.5 truncate">
+            Bitemporal Optical Siamese Mask
+          </div>
+        </div>
 
-              <button
-                onClick={() => toggleLayer('roads')}
-                className={`flex items-center space-x-1.5 px-2 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                  activeLayers.roads ? 'bg-[#2A2220] text-[#EA580C] font-semibold' : 'text-[#8E99A8] hover:text-white'
-                }`}
-              >
-                <NavIcon className="w-3.5 h-3.5" />
-                <span>Vulnerable Roads</span>
-              </button>
+        {/* KPI 4: Composite Risk Index */}
+        <div className="bg-[#131D2A] border border-[#1E2D3D] rounded-lg p-2.5 flex flex-col justify-between hover:border-[#2A3F55] transition-colors">
+          <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider">
+            <span>COMPOSITE RISK INDEX</span>
+            <Activity className="w-3.5 h-3.5 text-[#EF4444]" />
+          </div>
+          <div className="flex items-baseline space-x-2 mt-1">
+            <span className="text-xl font-bold font-mono text-[#F8FAFC]">
+              {compositeRiskScore} <span className="text-xs text-[#64748B]">/ 100</span>
+            </span>
+            <span
+              className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                riskSeverityLevel === 'CRITICAL'
+                  ? 'text-[#EF4444] bg-[#EF4444]/20 border border-[#EF4444]/40'
+                  : riskSeverityLevel === 'HIGH'
+                  ? 'text-[#F97316] bg-[#F97316]/20 border border-[#F97316]/40'
+                  : 'text-[#EAB308] bg-[#EAB308]/20 border border-[#EAB308]/40'
+              }`}
+            >
+              {riskSeverityLevel}
+            </span>
+          </div>
+          <div className="text-[10px] text-[#64748B] font-mono mt-0.5 truncate">
+            {riskResult?.primaryFactor || 'Slope & Antecedent Rainfall'}
+          </div>
+        </div>
 
-              <button
-                onClick={() => toggleLayer('villages')}
-                className={`flex items-center space-x-1.5 px-2 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                  activeLayers.villages ? 'bg-[#2A2220] text-[#EA580C] font-semibold' : 'text-[#8E99A8] hover:text-white'
-                }`}
-              >
-                <Building className="w-3.5 h-3.5" />
-                <span>Villages</span>
-              </button>
+        {/* KPI 5: Field Verification Progress */}
+        <div className="bg-[#131D2A] border border-[#1E2D3D] rounded-lg p-2.5 flex flex-col justify-between col-span-2 md:col-span-1 hover:border-[#2A3F55] transition-colors">
+          <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider">
+            <span>VERIFICATION</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#8B5CF6]" />
+          </div>
+          <div className="flex items-baseline space-x-2 mt-1">
+            <span className="text-xl font-bold font-mono text-[#F8FAFC]">
+              {verificationProgressPct}%
+            </span>
+            <span className="text-[10px] text-[#8B5CF6] font-mono">
+              {verifiedStructuresCount} / {totalStructures}
+            </span>
+          </div>
+          <div className="w-full bg-[#1E2D3D] h-1.5 rounded-full overflow-hidden mt-1.5">
+            <div
+              className="bg-[#8B5CF6] h-full rounded-full transition-all duration-500"
+              style={{ width: `${Math.min(100, verificationProgressPct)}%` }}
+            />
+          </div>
+        </div>
+      </section>
 
-              <button
-                onClick={() => toggleLayer('sensors')}
-                className={`flex items-center space-x-1.5 px-2 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                  activeLayers.sensors ? 'bg-[#2A2220] text-[#EA580C] font-semibold' : 'text-[#8E99A8] hover:text-white'
-                }`}
-              >
-                <Cpu className="w-3.5 h-3.5" />
-                <span>Sensors</span>
-              </button>
+      {/* ========================================================================= */}
+      {/* MAIN OPERATIONAL WORKSPACE (Grid: Primary Map + Panels)                  */}
+      {/* ========================================================================= */}
+      <main className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-2.5 p-2.5 overflow-hidden">
+        {/* ======================================================================= */}
+        {/* LEFT / CENTER COLUMN (3. Primary Map + 4. Current Assessment)          */}
+        {/* ======================================================================= */}
+        <section className="lg:col-span-7 xl:col-span-8 flex flex-col min-h-0 h-full space-y-2.5">
+          {/* 3. LARGE PRIMARY GEO-MAP CONTAINER */}
+          <div className="flex-1 relative min-h-0 bg-[#0E1622] rounded-lg border border-[#1E2D3D] overflow-hidden flex flex-col shadow-inner">
+            {/* Map Floating Control Header */}
+            <div className="absolute top-3 left-3 z-20 flex items-center space-x-2 bg-[#0F1722]/90 backdrop-blur border border-[#1E2D3D] px-2.5 py-1.5 rounded-md text-xs shadow-lg">
+              <span className="text-[#94A3B8] font-mono text-[11px] font-semibold flex items-center space-x-1">
+                <MapPin className="w-3.5 h-3.5 text-[#167F78]" />
+                <span>PRIMARY GEO-MAP</span>
+              </span>
+
+              <span className="text-[#1E2D3D]">|</span>
+
+              {/* 2D GIS vs 3D Earth Toggle */}
+              <div className="flex items-center bg-[#131D2A] rounded p-0.5 border border-[#1E2D3D]">
+                <button
+                  onClick={() => setMapViewMode('2d')}
+                  className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer ${
+                    mapViewMode === '2d'
+                      ? 'bg-[#167F78] text-white'
+                      : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+                  }`}
+                >
+                  2D GIS
+                </button>
+                <button
+                  onClick={() => setMapViewMode('3d')}
+                  className={`px-2 py-0.5 rounded text-[10px] font-mono font-semibold transition-all cursor-pointer flex items-center space-x-1 ${
+                    mapViewMode === '3d'
+                      ? 'bg-[#EA580C] text-white'
+                      : 'text-[#94A3B8] hover:text-[#E2E8F0]'
+                  }`}
+                >
+                  <Globe2 className="w-3 h-3" />
+                  <span>3D Twin</span>
+                </button>
+              </div>
+
+              {/* Scene Switcher Dropdown (if multiple scenes exist) */}
+              {scenes.length > 1 && (
+                <>
+                  <span className="text-[#1E2D3D]">|</span>
+                  <select
+                    value={selectedSceneId}
+                    onChange={(e) => handleSwitchScene(e.target.value)}
+                    className="bg-[#131D2A] border border-[#1E2D3D] text-[#E2E8F0] text-[10px] font-mono rounded px-1.5 py-0.5 outline-none cursor-pointer"
+                  >
+                    {scenes.map((sc) => (
+                      <option key={sc.sceneId} value={sc.sceneId}>
+                        {sc.title.length > 30 ? sc.title.substring(0, 30) + '...' : sc.title}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+            </div>
+
+            {/* Viewport Render (2D OpenStreetMapViewer or 3D SyntheticEarthViewer) */}
+            <div className="flex-1 w-full h-full relative min-h-0 bg-[#0A0F15]">
+              {mapViewMode === '2d' ? (
+                <OpenStreetMapViewer
+                  centerLat={mapCenter.lat}
+                  centerLng={mapCenter.lng}
+                  zoom={mapCenter.zoom}
+                  onCenterChange={(lat, lng, zoom) => setMapCenter({ lat, lng, zoom })}
+                  activeLayers={activeLayers}
+                  selectedState={selectedState}
+                  selectedZone={selectedZone}
+                  onSelectZone={onSelectZone}
+                  zones={zones}
+                  assessmentResult={assessmentResult}
+                  riskResult={riskResult}
+                  onVerifyStructure={handleVerifyStructure}
+                />
+              ) : (
+                <SyntheticEarthViewer
+                  centerLat={mapCenter.lat}
+                  centerLng={mapCenter.lng}
+                  selectedRegion={selectedState?.toUpperCase() === 'ASSAM' ? 'ASSAM' : 'SIKKIM'}
+                  assessmentResult={assessmentResult}
+                  riskResult={riskResult}
+                  onVerifyStructure={handleVerifyStructure}
+                  timeOffset={timeOffset}
+                  className="w-full h-full"
+                />
+              )}
             </div>
           </div>
 
-          {/* Real OpenStreetMap Interactive Viewer Component */}
-          <OpenStreetMapViewer
-            centerLat={mapCenter.lat}
-            centerLng={mapCenter.lng}
-            zoom={mapCenter.zoom}
-            onCenterChange={(lat, lng, zoom) => setMapCenter({ lat, lng, zoom })}
-            activeLayers={activeLayers}
-            selectedState={selectedState}
-            selectedZone={selectedZone}
-            onSelectZone={onSelectZone}
-            zones={zones}
-            onInspectZone={(z) => setInspectingZone(z)}
-          />
+          {/* 4. CURRENT ASSESSMENT SUMMARY (Compact Pre -> Post Bar) */}
+          <div className="bg-[#0F1722] border border-[#1E2D3D] rounded-lg p-3 shrink-0 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-xs shadow-sm">
+            {/* Chronology & Confidence */}
+            <div className="flex flex-col space-y-1 min-w-0">
+              <div className="flex items-center space-x-2 text-[10px] font-mono uppercase tracking-wider text-[#94A3B8]">
+                <Shield className="w-3.5 h-3.5 text-[#167F78]" />
+                <span className="font-semibold text-[#E2E8F0]">CURRENT ASSESSMENT</span>
+                <span className="text-[#1E2D3D]">•</span>
+                <span className="text-[#10B981]">Confidence: {((assessmentResult?.statistics?.averageConfidence || 0.922) * 100).toFixed(1)}%</span>
+              </div>
+              <div className="flex items-center space-x-2 text-xs font-mono">
+                <span className="px-2 py-0.5 rounded bg-[#131D2A] border border-[#1E2D3D] text-[#94A3B8]">
+                  PRE: <strong className="text-[#E2E8F0]">{assessmentResult?.sceneMetadata?.acquisitionDates?.before || '28 Aug 2026'}</strong>
+                </span>
+                <span className="text-[#64748B]">→</span>
+                <span className="px-2 py-0.5 rounded bg-[#131D2A] border border-[#1E2D3D] text-[#94A3B8]">
+                  POST: <strong className="text-[#E2E8F0]">{assessmentResult?.sceneMetadata?.acquisitionDates?.after || '03 Sep 2026'}</strong>
+                </span>
+              </div>
+            </div>
 
-          {/* Map Zoom Controls */}
-          <div className="absolute top-4 right-4 z-20 flex flex-col space-y-1">
-            <button
-              onClick={() => setMapCenter(prev => ({ ...prev, zoom: Math.min(prev.zoom + 1, 16) }))}
-              className="w-8 h-8 rounded-lg bg-[#FAF8F1] border border-[#D7DEDC] text-[#172126] flex items-center justify-center hover:bg-[#E6EDEB] text-sm font-bold shadow-md cursor-pointer"
-              title="Zoom In"
-            >
-              +
-            </button>
-            <button
-              onClick={() => setMapCenter(prev => ({ ...prev, zoom: Math.max(prev.zoom - 1, 3.5) }))}
-              className="w-8 h-8 rounded-lg bg-[#FAF8F1] border border-[#D7DEDC] text-[#172126] flex items-center justify-center hover:bg-[#E6EDEB] text-sm font-bold shadow-md cursor-pointer"
-              title="Zoom Out"
-            >
-              −
-            </button>
-            <button
-              onClick={() => handleZoomLevel('INDIA')}
-              className="w-8 h-8 rounded-lg bg-[#FAF8F1] border border-[#D7DEDC] text-[#172126] flex items-center justify-center hover:bg-[#E6EDEB] text-xs font-bold shadow-md cursor-pointer"
-              title="Reset View (All India)"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
+            {/* 4-Tier Damage Counts */}
+            <div className="flex items-center space-x-2 overflow-x-auto py-1">
+              {/* Destroyed */}
+              <div className="px-2.5 py-1 rounded bg-[#EF4444]/10 border border-[#EF4444]/30 flex flex-col items-center shrink-0">
+                <span className="text-[9px] font-mono uppercase text-[#EF4444] font-semibold">DESTROYED</span>
+                <span className="text-sm font-bold font-mono text-[#EF4444]">{destroyedCount}</span>
+              </div>
+              {/* Major */}
+              <div className="px-2.5 py-1 rounded bg-[#F97316]/10 border border-[#F97316]/30 flex flex-col items-center shrink-0">
+                <span className="text-[9px] font-mono uppercase text-[#F97316] font-semibold">MAJOR</span>
+                <span className="text-sm font-bold font-mono text-[#F97316]">{majorDamageCount}</span>
+              </div>
+              {/* Minor */}
+              <div className="px-2.5 py-1 rounded bg-[#EAB308]/10 border border-[#EAB308]/30 flex flex-col items-center shrink-0">
+                <span className="text-[9px] font-mono uppercase text-[#EAB308] font-semibold">MINOR</span>
+                <span className="text-sm font-bold font-mono text-[#EAB308]">{minorDamageCount}</span>
+              </div>
+              {/* Intact */}
+              <div className="px-2.5 py-1 rounded bg-[#10B981]/10 border border-[#10B981]/30 flex flex-col items-center shrink-0">
+                <span className="text-[9px] font-mono uppercase text-[#10B981] font-semibold">INTACT</span>
+                <span className="text-sm font-bold font-mono text-[#10B981]">{noDamageCount}</span>
+              </div>
+            </div>
+
+            {/* Verification Link */}
+            <div className="flex items-center space-x-2 shrink-0">
+              <button
+                onClick={() => onSelectView?.('damage_assessment')}
+                className="px-3 py-1.5 rounded bg-[#167F78]/20 hover:bg-[#167F78]/30 border border-[#167F78]/40 text-[#167F78] hover:text-white font-mono text-[11px] font-semibold flex items-center space-x-1.5 transition-colors cursor-pointer"
+              >
+                <span>Damage Engine</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
+        </section>
 
-          {/* Time Scrubber Timeline Player */}
-          <div className="absolute bottom-4 left-4 z-20 flex items-center space-x-2 bg-[#161922]/95 border border-[#242833] px-3 py-1.5 rounded-xl shadow-lg text-xs text-white">
-            <button
-              onClick={() => setIsPlayingTime(!isPlayingTime)}
-              className="p-1.5 rounded-lg bg-[#EA580C] text-white hover:bg-[#F97316] transition-colors cursor-pointer"
-            >
-              {isPlayingTime ? <Pause className="w-3 h-3" /> : <Play className="w-3 h-3" />}
-            </button>
+        {/* ======================================================================= */}
+        {/* RIGHT COLUMN (5. Operational Pipeline + 6. Key Intel + 7. Timeline + 8. Quick Actions) */}
+        {/* ======================================================================= */}
+        <section className="lg:col-span-5 xl:col-span-4 flex flex-col min-h-0 h-full space-y-2.5 overflow-y-auto scrollbar-thin scrollbar-thumb-[#1E2D3D] pr-0.5">
+          {/* 5. OPERATIONAL STATUS PIPELINE */}
+          <div className="bg-[#0F1722] border border-[#1E2D3D] rounded-lg p-3 shrink-0 flex flex-col space-y-2 shadow-sm">
+            <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider border-b border-[#1E2D3D] pb-1.5">
+              <span className="flex items-center space-x-1.5 font-bold text-[#E2E8F0]">
+                <Activity className="w-3.5 h-3.5 text-[#10B981]" />
+                <span>OPERATIONAL STATUS PIPELINE</span>
+              </span>
+              <span className="text-[#10B981] font-semibold">● 6 / 6 LIVE</span>
+            </div>
 
-            <div className="flex items-center space-x-1 overflow-x-auto text-xs">
-              {timeSteps.map((step, idx) => (
+            <div className="grid grid-cols-1 gap-1.5">
+              {pipelineStages.map((stg) => (
                 <button
-                  key={step}
-                  onClick={() => {
-                    setActiveTimeIndex(idx);
-                    if (onTimeChange) onTimeChange(idx * 15);
-                  }}
-                  className={`px-2 py-0.5 rounded-md font-mono text-[11px] transition-colors cursor-pointer ${
-                    activeTimeIndex === idx
-                      ? 'bg-[#EA580C] text-white font-bold'
-                      : 'text-[#8E99A8] hover:text-white'
-                  }`}
+                  key={stg.id}
+                  onClick={() => onSelectView?.(stg.view)}
+                  className="w-full flex items-center justify-between p-2 rounded bg-[#131D2A] hover:bg-[#192638] border border-[#1E2D3D] hover:border-[#2A3F55] transition-all text-left cursor-pointer group"
                 >
-                  {step}
+                  <div className="flex items-center space-x-2 min-w-0">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${stg.dotColor}`} />
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[11px] font-semibold text-[#F8FAFC] group-hover:text-[#06B6D4] transition-colors truncate">
+                        {stg.name}
+                      </span>
+                      <span className="text-[10px] text-[#64748B] truncate font-mono">
+                        {stg.detail}
+                      </span>
+                    </div>
+                  </div>
+                  <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border shrink-0 ${stg.badgeColor}`}>
+                    {stg.status}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* ========================================================================= */}
-        {/* 3. BOTTOM LANDSLIDE RISK FORECAST MATRIX */}
-        {/* ========================================================================= */}
-        <div className={`p-2.5 border-t shrink-0 flex flex-col space-y-1.5 ${
-          isDarkMode ? 'bg-[#161922] border-[#242833]' : 'bg-[#FAF8F1] border-[#D7DEDC]'
-        }`}>
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center space-x-4 font-medium">
-              <span className="text-white flex items-center space-x-1.5 font-semibold">
-                <TrendingUp className="w-3.5 h-3.5 text-[#EA580C]" />
-                <span>Landslide Risk Forecast ({selectedState})</span>
+          {/* 6. KEY INTELLIGENCE */}
+          <div className="bg-[#0F1722] border border-[#1E2D3D] rounded-lg p-3 shrink-0 flex flex-col space-y-2 shadow-sm">
+            <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider border-b border-[#1E2D3D] pb-1.5">
+              <span className="flex items-center space-x-1.5 font-bold text-[#E2E8F0]">
+                <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+                <span>KEY INTELLIGENCE FINDINGS</span>
               </span>
-
-              <label className="flex items-center space-x-1.5 cursor-pointer text-[#F97316]">
-                <input
-                  type="radio"
-                  name="forecastRange"
-                  checked={forecastRange === '24h'}
-                  onChange={() => setForecastRange('24h')}
-                  className="accent-[#EA580C]"
-                />
-                <span>Timeline (Current → +24h)</span>
-              </label>
-
-              <label className="flex items-center space-x-1.5 cursor-pointer text-[#8E99A8] hover:text-white">
-                <input
-                  type="radio"
-                  name="forecastRange"
-                  checked={forecastRange === '7d'}
-                  onChange={() => setForecastRange('7d')}
-                  className="accent-[#EA580C]"
-                />
-                <span>7-Day Synoptic Watch</span>
-              </label>
+              <span className="text-[#F59E0B] font-mono">TACTICAL SUMMARY</span>
             </div>
 
-            <span className="text-[10px] font-mono text-[#8E99A8]">
-              Model: OpenWeather Grid + Terrain Geotech Engine
-            </span>
-          </div>
-
-          <div className="grid grid-cols-5 gap-2 text-xs">
-            {riskForecastSteps.map((step, idx) => (
-              <div
-                key={idx}
-                onClick={() => setSelectedForecastStep(idx)}
-                className={`p-2 rounded-xl border transition-all cursor-pointer flex flex-col space-y-0.5 ${
-                  selectedForecastStep === idx
-                    ? 'bg-[#2A2220] border-[#EA580C]'
-                    : 'bg-[#1C202B] border-[#282E3C] hover:border-[#EA580C]/40'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold font-mono text-white text-[11px]">{step.label}</span>
-                  <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold border ${getThreatBadge(step.level)}`}>
-                    {step.level}
-                  </span>
+            <div className="flex flex-col space-y-2 text-xs">
+              {/* Finding 1: Highest-Risk Sector */}
+              <div className="p-2 rounded bg-[#131D2A] border-l-2 border-l-[#EF4444] border border-[#1E2D3D]">
+                <div className="text-[10px] font-mono uppercase text-[#EF4444] font-semibold">
+                  HIGHEST-RISK SECTOR
                 </div>
-                <div className="flex items-baseline justify-between pt-0.5">
-                  <span className="text-sm font-bold font-mono text-[#EA580C]">{step.riskScore}/100</span>
-                  <span className="text-[10px] font-mono text-[#8E99A8]">{step.rain} mm/hr</span>
+                <div className="text-[11px] font-bold text-[#F8FAFC] mt-0.5">
+                  {riskResult?.zoneName || activeLocationName}
                 </div>
-                <span className="text-[9px] text-[#8E99A8] truncate">{step.summary}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================================= */}
-      {/* ========================================================================= */}
-      {/* 4. RIGHT SIDEBAR: PRIMARY RISK INTELLIGENCE & OPERATIONS PANEL */}
-      {/* ========================================================================= */}
-      <aside className={`w-84 p-3 border-l shrink-0 flex flex-col h-full overflow-hidden ${
-        isDarkMode ? 'bg-[#161922] border-[#242833]' : 'bg-[#F2EFE8] border-[#D7DEDC]'
-      }`}>
-        {/* Top: Section Switcher & Date Header */}
-        <div className="flex flex-col space-y-2 shrink-0 pb-2 border-b border-[#242833]">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-xs text-white flex items-center space-x-1.5">
-              <Activity className="w-3.5 h-3.5 text-[#EA580C]" />
-              <span>Risk Intelligence Desk ({selectedState})</span>
-            </span>
-            <span className="text-[10px] font-mono text-[#8E99A8]">
-              05 Sep 2026 · 13:16 IST
-            </span>
-          </div>
-
-          {/* Sub-tab Switcher (5 tabs: Risk Intel, Priorities, Reports, Sensors, Alerts) */}
-          <div className="grid grid-cols-5 gap-1 bg-[#12151B] p-1 rounded-xl border border-[#242833] text-xs">
-            <button
-              onClick={() => setRightPanelTab('risk_intel')}
-              className={`py-1 rounded-lg font-semibold text-[10px] text-center truncate transition-colors cursor-pointer ${
-                rightPanelTab === 'risk_intel' ? 'bg-[#EA580C] text-white' : 'text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              Risk Intel
-            </button>
-            <button
-              onClick={() => setRightPanelTab('priorities')}
-              className={`py-1 rounded-lg font-semibold text-[10px] text-center truncate transition-colors cursor-pointer ${
-                rightPanelTab === 'priorities' ? 'bg-[#EA580C] text-white' : 'text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              Priorities
-            </button>
-            <button
-              onClick={() => setRightPanelTab('reports')}
-              className={`py-1 rounded-lg font-semibold text-[10px] text-center truncate transition-colors cursor-pointer ${
-                rightPanelTab === 'reports' ? 'bg-[#EA580C] text-white' : 'text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              Reports
-            </button>
-            <button
-              onClick={() => setRightPanelTab('sensors')}
-              className={`py-1 rounded-lg font-semibold text-[10px] text-center truncate transition-colors cursor-pointer ${
-                rightPanelTab === 'sensors' ? 'bg-[#EA580C] text-white' : 'text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              Sensors
-            </button>
-            <button
-              onClick={() => setRightPanelTab('alerts')}
-              className={`py-1 rounded-lg font-semibold text-[10px] text-center truncate transition-colors cursor-pointer ${
-                rightPanelTab === 'alerts' ? 'bg-[#EA580C] text-white' : 'text-[#8E99A8] hover:text-white'
-              }`}
-            >
-              Alerts
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable, Frame-Fitted Content Container */}
-        <div className="flex-1 overflow-y-auto pr-1 my-1.5 space-y-2 min-h-0 custom-scrollbar">
-          {/* ------------------------------------------------------------- */}
-          {/* TAB 1: RISK INTELLIGENCE & FACTORS */}
-          {/* ------------------------------------------------------------- */}
-          {rightPanelTab === 'risk_intel' && (
-            <div className="space-y-2 text-xs animate-fadeIn">
-              {/* Primary Risk Score Card */}
-              <div
-                onClick={() => setInspectingZone(selectedZone)}
-                className="p-2.5 rounded-xl bg-[#2A2220] border border-[#EA580C]/30 flex flex-col space-y-1 cursor-pointer hover:border-[#EA580C] transition-all"
-                title="Click to inspect risk zone telemetry & factors"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-white">Risk Score: {riskScore}/100</span>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${getThreatBadge(currentRiskLevel)}`}>
-                    {currentRiskLevel}
-                  </span>
-                </div>
-                <p className="text-[11px] text-[#ECEFF1] leading-snug">
-                  Contributing factors: {activeZoneAnalysis.factorBreakdown.find(f => f.id === 'F-RAIN')?.triggerNarrative || `Orographic rainfall (${weather.rainfall1hMm} mm/hr) on saturated ${isSikkim ? '34.8°' : '36.2°'} slope.`}
-                </p>
-                <div className="flex items-center justify-between text-[9px] font-mono text-[#8E99A8] pt-0.5 border-t border-[#342D2B]">
-                  <span>{selectedZone?.name || (isSikkim ? 'Dikchu Mile 14' : 'Haflong Ghat')}</span>
-                  <span className="text-[#EA580C] font-semibold">INSPECT ZONE →</span>
+                <div className="text-[10px] text-[#94A3B8] mt-0.5">
+                  Trigger: {riskResult?.primaryFactor || 'Precipitation & Geotechnical Slope'} (Risk: {compositeRiskScore}/100)
                 </div>
               </div>
 
-              {/* Weather Telemetry Section */}
-              <div className="p-2 rounded-xl bg-[#1C202B] border border-[#282E3C] space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-white flex items-center space-x-1">
-                    <CloudRain className="w-3.5 h-3.5 text-[#397FA8]" />
-                    <span>Weather Telemetry</span>
-                  </span>
-                  <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#397FA8]/15 text-[#397FA8] border border-[#397FA8]/30 font-bold">
-                    {weather.sourceCategory || (weather.provenance?.includes('OpenWeather') ? 'LIVE' : weather.provenance?.includes('Open-Meteo') ? 'FALLBACK' : 'SYNTHETIC')}
-                  </span>
+              {/* Finding 2: Observed Damage */}
+              <div className="p-2 rounded bg-[#131D2A] border-l-2 border-l-[#F97316] border border-[#1E2D3D]">
+                <div className="text-[10px] font-mono uppercase text-[#F97316] font-semibold">
+                  OBSERVED DAMAGE
                 </div>
-
-                <div className="grid grid-cols-2 gap-1 text-[11px]">
-                  <div className="p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8] block text-[9px]">Temperature</span>
-                    <span className="font-mono font-bold text-white text-xs">{weather.temperatureC}°C ({weather.cloudCondition})</span>
-                  </div>
-                  <div className="p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8] block text-[9px]">Rainfall (1h / 24h)</span>
-                    <span className="font-mono font-bold text-[#F97316] text-xs">{weather.rainfall1hMm.toFixed(1)} / {weather.rainfall24hMm.toFixed(1)} mm</span>
-                  </div>
-                  <div className="p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8] block text-[9px]">Humidity</span>
-                    <span className="font-mono font-semibold text-white text-xs">{weather.humidityPct}%</span>
-                  </div>
-                  <div className="p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8] block text-[9px]">Wind & Pressure</span>
-                    <span className="font-mono font-semibold text-white text-xs">{weather.windSpeedKmh} km/h · {weather.pressureHpa} hPa</span>
-                  </div>
+                <div className="text-[11px] font-bold text-[#F8FAFC] mt-0.5">
+                  {majorDamageCount} Major / {minorDamageCount} Minor / {destroyedCount} Destroyed
                 </div>
-
-                {/* Mathematical Risk Contribution from Rainfall */}
-                <div className="p-1.5 rounded-lg bg-[#12151B] border border-[#242833] flex items-center justify-between text-[10px] font-mono">
-                  <span className="text-[#8E99A8]">Rainfall Factor Contrib (40%):</span>
-                  <span className="text-[#F97316] font-bold">
-                    +{activeZoneAnalysis.factorContributions.rainfall.toFixed(1)} pts ({activeZoneAnalysis.factorBreakdown.find(f => f.id === 'F-RAIN')?.percentageOfTotal || 0}% share)
-                  </span>
+                <div className="text-[10px] text-[#94A3B8] mt-0.5">
+                  {((riskResult?.observedDamageContext?.damagedStructureDensityPct) ?? ((totalDamaged / (totalStructures || 1)) * 100)).toFixed(1)}% structure compromise density across active footprint.
                 </div>
               </div>
 
-              {/* Terrain & Risk Factors */}
-              <div className="p-2 rounded-xl bg-[#1C202B] border border-[#282E3C] space-y-1">
-                <span className="font-bold text-xs text-white flex items-center space-x-1">
-                  <Gauge className="w-3.5 h-3.5 text-[#EA580C]" />
-                  <span>Terrain & Risk Factors</span>
-                </span>
-
-                <div className="space-y-1 text-[11px]">
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8]">Soil Moisture Saturation</span>
-                    <span className="font-mono font-semibold text-white">{isSikkim ? '84% (Pore: 142 kPa)' : '89% (Pore: 128 kPa)'}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8]">Slope Angle / Lithology</span>
-                    <span className="font-mono font-semibold text-white">{isSikkim ? '34.8° (Biotite Gneiss)' : '36.2° (Disang Shale)'}</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#8E99A8]">Satellite Observation (InSAR)</span>
-                    <span className="font-mono font-bold text-[#A855F7]">{isSikkim ? '+18.4 mm LOS' : '+14.2 mm LOS'}</span>
-                  </div>
+              {/* Finding 3: Threatened Lifeline */}
+              <div className="p-2 rounded bg-[#131D2A] border-l-2 border-l-[#06B6D4] border border-[#1E2D3D]">
+                <div className="text-[10px] font-mono uppercase text-[#06B6D4] font-semibold">
+                  THREATENED INFRASTRUCTURE
+                </div>
+                <div className="text-[11px] font-bold text-[#F8FAFC] mt-0.5 truncate">
+                  {riskResult?.priorityAreas?.[0] || 'NH-10 Highway Viaduct KM 42+200 (Pier 4)'}
+                </div>
+                <div className="text-[10px] text-[#94A3B8] mt-0.5 truncate">
+                  {riskResult?.priorityAreas?.[1] || 'Singtam Intake Generating Station (Teesta Stage V)'}
                 </div>
               </div>
 
-              {/* Exposure Breakdown */}
-              <div className="p-2 rounded-xl bg-[#1C202B] border border-[#282E3C] space-y-1">
-                <span className="font-bold text-xs text-white flex items-center space-x-1">
-                  <Building className="w-3.5 h-3.5 text-[#3B82F6]" />
-                  <span>Exposed Assets & Settlements</span>
-                </span>
-
-                <div className="space-y-1 text-[11px] text-[#ECEFF1]">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#8E99A8]">Population Exposed</span>
-                    <span className="font-mono font-bold text-white">{isSikkim ? '1,420 residents' : '2,100 residents'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#8E99A8]">Corridors Affected</span>
-                    <span className="font-mono font-bold text-[#EF4444]">{isSikkim ? 'NH-10 (KM 19 Severed)' : 'NH-27 (Haflong Ghat Corridor)'}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#8E99A8]">Critical Facilities</span>
-                    <span className="font-mono font-bold text-[#F59E0B]">{isSikkim ? 'Teesta-V Dam, Bailey Bridge' : 'Haflong Hospital, NFR Line'}</span>
-                  </div>
+              {/* Finding 4: Action Trigger */}
+              <div className="p-2 rounded bg-[#131D2A] border-l-2 border-l-[#10B981] border border-[#1E2D3D]">
+                <div className="text-[10px] font-mono uppercase text-[#10B981] font-semibold">
+                  OPERATIONAL ACTION TRIGGER
+                </div>
+                <div className="text-[11px] font-bold text-[#F8FAFC] mt-0.5">
+                  {riskResult?.responsePriority === 'IMMEDIATE_DISPATCH'
+                    ? 'Immediate Field Dispatch & Traffic Regulation'
+                    : 'Field Verification & Slope Monitoring'}
+                </div>
+                <div className="text-[10px] text-[#94A3B8] mt-0.5">
+                  {totalStructures - verifiedStructuresCount} unverified structural footprints pending ground confirmation.
                 </div>
               </div>
             </div>
-          )}
+          </div>
 
-          {/* ------------------------------------------------------------- */}
-          {/* TAB 2: RESPONSE PRIORITY */}
-          {/* ------------------------------------------------------------- */}
-          {rightPanelTab === 'priorities' && (
-            <div className="space-y-1.5 text-xs animate-fadeIn">
-              <div className="flex items-center justify-between text-[10px] text-[#8E99A8] px-1 font-mono">
-                <span>OPERATIONAL DIRECTIVES ({selectedState.toUpperCase()})</span>
-                <span className="text-[#EA580C] font-bold">{responsePriorities.length} Corridors</span>
-              </div>
+          {/* 7. ACTIVITY / ALERT TIMELINE */}
+          <div className="bg-[#0F1722] border border-[#1E2D3D] rounded-lg p-3 shrink-0 flex flex-col space-y-2 shadow-sm">
+            <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider border-b border-[#1E2D3D] pb-1.5">
+              <span className="flex items-center space-x-1.5 font-bold text-[#E2E8F0]">
+                <Clock className="w-3.5 h-3.5 text-[#06B6D4]" />
+                <span>ACTIVITY & ALERT TIMELINE</span>
+              </span>
+              <span className="text-[#06B6D4] font-mono">{dynamicTimelineEvents.length} EVENTS</span>
+            </div>
 
-              {responsePriorities.map((rp) => (
-                <div
-                  key={rp.id}
-                  className="p-2 rounded-xl bg-[#1C202B] border border-[#282E3C] flex flex-col space-y-1 hover:border-[#EA580C]/40 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-1.5 min-w-0">
-                      <span className="w-4 h-4 rounded-full bg-[#EA580C] text-white font-mono font-bold text-[10px] flex items-center justify-center shrink-0">
-                        {rp.rank}
+            <div className="flex flex-col space-y-1.5 max-h-[170px] overflow-y-auto scrollbar-thin scrollbar-thumb-[#1E2D3D] pr-1">
+              {dynamicTimelineEvents.length === 0 ? (
+                <div className="p-3 text-center text-[#64748B] text-xs font-mono">
+                  No operational activity events recorded for active sector.
+                </div>
+              ) : (
+                dynamicTimelineEvents.map((evt) => (
+                  <div
+                    key={evt.id}
+                    className="p-2 rounded bg-[#131D2A] border border-[#1E2D3D] flex flex-col space-y-0.5"
+                  >
+                    <div className="flex items-center justify-between text-[10px] font-mono">
+                      <span className="text-[#94A3B8]">{evt.time}</span>
+                      <span
+                        className={`px-1.5 py-0.2 rounded font-bold text-[9px] ${
+                          evt.severity === 'CRITICAL'
+                            ? 'text-[#EF4444] bg-[#EF4444]/20 border border-[#EF4444]/40'
+                            : evt.severity === 'WARNING'
+                            ? 'text-[#F97316] bg-[#F97316]/20 border border-[#F97316]/40'
+                            : evt.severity === 'SUCCESS'
+                            ? 'text-[#10B981] bg-[#10B981]/20 border border-[#10B981]/40'
+                            : 'text-[#06B6D4] bg-[#06B6D4]/20 border border-[#06B6D4]/40'
+                        }`}
+                      >
+                        {evt.type}
                       </span>
-                      <span className="font-bold text-white text-xs truncate">{rp.target}</span>
                     </div>
-                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold shrink-0 border ml-1 ${getThreatBadge(rp.threatLevel)}`}>
-                      {rp.threatLevel}
-                    </span>
+                    <div className="text-[11px] text-[#E2E8F0] font-sans leading-tight mt-0.5">
+                      {evt.description}
+                    </div>
                   </div>
-                  <p className="text-[#ECEFF1] text-[10px] leading-snug">
-                    {rp.recommendedAction}
-                  </p>
-                  <div className="flex items-center justify-between pt-0.5 border-t border-[#242833] text-[9px] font-mono text-[#8E99A8]">
-                    <span>Agency: <strong className="text-[#ECEFF1]">{rp.leadAgency}</strong></span>
-                    <span className="text-[#EA580C] font-semibold px-1 py-0.2 rounded bg-[#EA580C]/10">{rp.status}</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
-          )}
+          </div>
 
-          {/* ------------------------------------------------------------- */}
-          {/* TAB 3: FIELD REPORTS */}
-          {/* ------------------------------------------------------------- */}
-          {rightPanelTab === 'reports' && (
-            <div className="space-y-1.5 text-xs animate-fadeIn">
-              <div className="flex items-center justify-between text-[10px] text-[#8E99A8] px-1 font-mono">
-                <span>[GROUND-TRUTH INCIDENT LOGS]</span>
-                <span className="text-[#10B981] font-bold">{fieldReportsList.length} Incident Logs</span>
-              </div>
-
-              {/* Status summary pill bar */}
-              <div className="grid grid-cols-3 gap-1 text-[10px] font-mono text-center">
-                <div className="p-1 rounded-lg bg-[#1C202B] border border-[#282E3C]">
-                  <span className="text-[#8E99A8] block text-[9px]">Total</span>
-                  <span className="font-bold text-white">{fieldReportsList.length}</span>
-                </div>
-                <div className="p-1 rounded-lg bg-[#1C202B] border border-[#10B981]/30">
-                  <span className="text-[#10B981] block text-[9px]">Verified</span>
-                  <span className="font-bold text-[#10B981]">2</span>
-                </div>
-                <div className="p-1 rounded-lg bg-[#1C202B] border border-[#F59E0B]/30">
-                  <span className="text-[#F59E0B] block text-[9px]">Inspection</span>
-                  <span className="font-bold text-[#F59E0B]">1</span>
-                </div>
-              </div>
-
-              {fieldReportsList.map((rep) => (
-                <div
-                  key={rep.id}
-                  className="p-2 rounded-xl bg-[#1C202B] border border-[#282E3C] flex flex-col space-y-1 hover:border-[#10B981]/40 transition-colors"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white text-xs font-mono">{rep.id}</span>
-                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-mono font-bold ${
-                      rep.verificationStatus === 'Verified' ? 'bg-[#10B981]/15 text-[#10B981]' : 'bg-[#F59E0B]/15 text-[#F59E0B]'
-                    }`}>
-                      Field verification: {rep.verificationStatus}
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-[#ECEFF1] font-semibold flex items-center justify-between">
-                    <span className="truncate">{rep.location}</span>
-                    <span className="text-[9px] font-mono text-[#8E99A8] shrink-0 ml-1">📷 Photo/Video</span>
-                  </div>
-                  <div className="text-[10px] text-[#EA580C] font-mono font-medium">{rep.reportType}</div>
-                  <p className="text-[#8E99A8] text-[10px] leading-snug">{rep.detail}</p>
-                  <div className="flex items-center justify-between pt-0.5 border-t border-[#242833] text-[9px] font-mono text-[#8E99A8]">
-                    <span>Source: {rep.source}</span>
-                    <span>Reported {rep.timestamp}</span>
-                  </div>
-                </div>
-              ))}
+          {/* 8. QUICK ACTIONS */}
+          <div className="bg-[#0F1722] border border-[#1E2D3D] rounded-lg p-3 shrink-0 flex flex-col space-y-2 shadow-sm">
+            <div className="flex items-center justify-between text-[#94A3B8] text-[10px] font-mono uppercase tracking-wider border-b border-[#1E2D3D] pb-1.5">
+              <span className="flex items-center space-x-1.5 font-bold text-[#E2E8F0]">
+                <Zap className="w-3.5 h-3.5 text-[#EAB308]" />
+                <span>QUICK ACTIONS</span>
+              </span>
+              <span className="text-[#64748B] font-mono">DIRECT WORKSPACE</span>
             </div>
-          )}
 
-          {/* ------------------------------------------------------------- */}
-          {/* TAB 4: SENSOR STATUS */}
-          {/* ------------------------------------------------------------- */}
-          {rightPanelTab === 'sensors' && (
-            <div className="space-y-1.5 text-xs animate-fadeIn">
-              <div className="flex items-center justify-between text-[10px] text-[#8E99A8] px-1 font-mono">
-                <span>[GEOTECHNICAL TELEMETRY NETWORK]</span>
-                <span className="text-[#10B981] font-bold">{sensorStats.onlineNodes}/{sensorStats.totalNodes} ONLINE</span>
-              </div>
-
-              <div className="grid grid-cols-3 gap-1 text-center text-xs">
-                <div className="p-1 rounded-xl bg-[#1C202B] border border-[#282E3C]">
-                  <span className="text-[9px] text-[#8E99A8] block font-mono">Monitored</span>
-                  <span className="text-xs font-bold font-mono text-white">{sensorStats.totalNodes}</span>
-                </div>
-                <div className="p-1 rounded-xl bg-[#1C202B] border border-[#10B981]/30">
-                  <span className="text-[9px] text-[#10B981] block font-mono">Online</span>
-                  <span className="text-xs font-bold font-mono text-[#10B981]">{sensorStats.onlineNodes}</span>
-                </div>
-                <div className="p-1 rounded-xl bg-[#1C202B] border border-[#DC2626]/30">
-                  <span className="text-[9px] text-[#EF4444] block font-mono">Warning</span>
-                  <span className="text-xs font-bold font-mono text-[#EF4444]">{sensorStats.warningNodes}</span>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                {sensorStats.criticalNodes.map((node) => (
-                  <div key={node.id} className="p-1.5 rounded-xl bg-[#1C202B] border border-[#282E3C] flex flex-col space-y-0.5 hover:border-[#397FA8]/40 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-1 min-w-0">
-                        <span className="font-bold text-white text-[11px] font-mono">{node.id}</span>
-                        <span className="text-[9px] text-[#8E99A8] truncate">({node.type})</span>
+            <div className="grid grid-cols-2 gap-1.5">
+              {quickActions.map((act) => {
+                const Icon = act.icon;
+                return (
+                  <button
+                    key={act.id}
+                    onClick={() => onSelectView?.(act.view)}
+                    className={`p-2 rounded bg-[#131D2A] hover:bg-[#192638] border border-[#1E2D3D] text-left transition-all cursor-pointer group flex flex-col justify-between ${act.color}`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <Icon className="w-3.5 h-3.5 text-[#94A3B8] group-hover:text-current transition-colors" />
+                      <ArrowUpRight className="w-3 h-3 text-[#64748B] group-hover:text-current transition-colors" />
+                    </div>
+                    <div className="mt-1.5">
+                      <div className="text-[11px] font-bold text-[#F8FAFC] group-hover:text-current transition-colors truncate">
+                        {act.title}
                       </div>
-                      <span className={`px-1 py-0.2 rounded text-[8px] font-mono font-bold shrink-0 ml-1 ${
-                        node.status === 'Elevated' || node.status === 'High' ? 'bg-[#DC2626]/15 text-[#EF4444]' : node.status === 'Warning' ? 'bg-[#F59E0B]/15 text-[#F59E0B]' : 'bg-[#10B981]/15 text-[#10B981]'
-                      }`}>
-                        {node.status}
-                      </span>
+                      <div className="text-[9px] text-[#64748B] truncate font-mono">
+                        {act.tagline}
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-[10px]">
-                      <span className="text-[#8E99A8] truncate">{node.location}</span>
-                      <span className="font-bold font-mono text-[#EF4444] shrink-0 ml-1">{node.val}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-[8px] font-mono text-[#8E99A8] pt-0.5 border-t border-[#242833]">
-                      <span>Norm: {node.normal}</span>
-                      <span>Ping: {node.lastPing} · 98% Batt</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  </button>
+                );
+              })}
 
-              <div className="p-1.5 rounded-xl bg-[#12151B] border border-[#242833] text-[9px] font-mono text-[#8E99A8] flex items-center justify-between">
-                <span>Network Inversion Confidence:</span>
-                <span className="font-bold text-[#10B981]">94% (High Fidelity)</span>
-              </div>
-            </div>
-          )}
-
-          {/* ------------------------------------------------------------- */}
-          {/* TAB 5: CAP ALERTS FEED */}
-          {/* ------------------------------------------------------------- */}
-          {rightPanelTab === 'alerts' && (
-            <div className="space-y-2 text-xs animate-fadeIn">
-              <div className="flex items-center justify-between text-[10px] text-[#8E99A8] px-1 font-mono">
-                <span>[COMMON ALERTING PROTOCOL]</span>
-                <span className="text-[#EF4444] font-bold flex items-center">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse mr-1" />
-                  LIVE BROADCAST
-                </span>
-              </div>
-
-              {/* Active Emergency Broadcast Card */}
-              <div className="p-2.5 rounded-xl bg-[#2A2220] border border-[#DC2626]/40 flex flex-col space-y-1">
-                <div className="flex items-center justify-between text-[10px]">
-                  <span className="font-bold text-[#EF4444] flex items-center font-mono">
-                    <AlertTriangle className="w-3.5 h-3.5 text-[#EF4444] mr-1" />
-                    CAP-CP EMERGENCY WARNING
-                  </span>
-                  <span className="font-mono text-[9px] px-1 py-0.2 rounded bg-[#EF4444]/20 text-[#EF4444] font-bold">
-                    URGENT · SEVERE
-                  </span>
-                </div>
-                <div className="font-bold text-white text-xs leading-snug">
-                  Flash Landslide & Corridor Disruption Alert
-                </div>
-                <p className="text-[#ECEFF1] text-[10px] leading-relaxed">
-                  Saturated colluvial layer along {isSikkim ? 'NH-10 (KM 18-24 Dikchu-Singtam)' : 'NH-27 Haflong Ghat Hill Corridor'} experiencing active shear displacement following heavy rainfall. Mandatory road diversion in effect.
-                </p>
-                <div className="grid grid-cols-2 gap-1 text-[9px] font-mono text-[#FED7AA] pt-1 border-t border-[#3B1D1D]">
-                  <div>Target: {isSikkim ? 'Pakyong & Gangtok Towers' : 'Dima Hasao Towers'}</div>
-                  <div className="text-right">Reach: {isSikkim ? '1,420 Residents' : '2,100 Residents'}</div>
-                </div>
-              </div>
-
-              {/* Multi-Channel Broadcast Delivery Pipeline */}
-              <div className="p-2 rounded-xl bg-[#1C202B] border border-[#282E3C] space-y-1">
-                <span className="font-bold text-xs text-white flex items-center space-x-1">
-                  <Radio className="w-3.5 h-3.5 text-[#397FA8]" />
-                  <span>Broadcast Delivery Pipeline</span>
-                </span>
-                <div className="space-y-1 text-[10px] font-mono">
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#ECEFF1]">📡 Cell Broadcast SMS</span>
-                    <span className="text-[#10B981] font-bold">100% DELIVERED</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#ECEFF1]">🚨 Disaster Siren Network</span>
-                    <span className="text-[#F59E0B] font-bold">ARMED / STANDBY</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#ECEFF1]">📻 Police & SDRF VHF</span>
-                    <span className="text-[#10B981] font-bold">DISPATCHED (CH 4)</span>
-                  </div>
-                  <div className="flex items-center justify-between p-1.5 rounded-lg bg-[#12151B] border border-[#242833]">
-                    <span className="text-[#ECEFF1]">📺 State Disaster Portal</span>
-                    <span className="text-[#10B981] font-bold">LIVE BANNER ACTIVE</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-1.5 rounded-xl bg-[#12151B] border border-[#242833] text-[9px] font-mono text-[#8E99A8] flex items-center justify-between">
-                <span>Authorized: SDMA</span>
-                <span className="text-[#EA580C]">Sync: 13:16 IST</span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom Action: View Response Plan Modal */}
-        <div className="pt-2 border-t border-[#242833] shrink-0">
-          <button
-            onClick={() => setIsAiModalOpen(true)}
-            className="w-full py-2 px-3 rounded-xl bg-[#EA580C] hover:bg-[#F97316] text-white text-xs font-semibold transition-colors flex items-center justify-center space-x-2 cursor-pointer shadow-sm"
-          >
-            <MessageSquare className="w-3.5 h-3.5" />
-            <span>Response Recommendation</span>
-          </button>
-        </div>
-      </aside>
-
-      {/* ========================================================================= */}
-      {/* 5. RESPONSE RECOMMENDATION MODAL */}
-      {/* ========================================================================= */}
-      {isAiModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-          <div className="w-full max-w-lg bg-[#161922] border border-[#282E3C] rounded-2xl shadow-2xl p-5 flex flex-col space-y-4">
-            <div className="flex items-center justify-between border-b border-[#242833] pb-3">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-7 h-7 rounded-xl bg-[#EA580C] text-white flex items-center justify-center shadow-sm">
-                  <Shield className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-sm text-white">Disaster Operations Response Recommendation</h3>
-                  <span className="text-[10px] text-[#8E99A8] font-mono">SIH26001 Multi-Factor Assessment · {selectedState}</span>
-                </div>
-              </div>
+              {/* 7th Action: Executive PDF Report Modal Trigger */}
               <button
-                onClick={() => setIsAiModalOpen(false)}
-                className="p-1.5 rounded-lg text-[#8E99A8] hover:text-white hover:bg-white/10 cursor-pointer"
+                onClick={handleOpenReport}
+                className="col-span-2 p-2 rounded bg-[#167F78]/15 hover:bg-[#167F78]/25 border border-[#167F78]/40 text-[#167F78] hover:text-white transition-all cursor-pointer flex items-center justify-between group"
               >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Diagnosis & Action Items */}
-            <div className="p-3.5 rounded-xl bg-[#1C202B] border border-[#282E3C] space-y-2 text-xs text-[#ECEFF1] leading-relaxed">
-              <p>
-                <strong>Operational Assessment for {selectedZone?.name || (isSikkim ? 'Dikchu-Singtam Sector' : 'Haflong Ghat Sector')}:</strong>
-              </p>
-              <p>
-                Live OpenWeather telemetry indicates precipitation rate of <strong>{weather.rainfall1hMm.toFixed(1)} mm/hr</strong> (24h accumulation: <strong>{weather.rainfall24hMm.toFixed(1)} mm</strong>). Multi-factor analysis indicates critical pore water pressure surge on <strong>{isSikkim ? '34.8°' : '36.2°'}</strong> colluvium.
-              </p>
-              <div className="text-[#FED7AA] bg-[#2A2220] p-2.5 rounded-lg border border-[#EA580C]/30 space-y-1">
-                <strong>Recommended Action:</strong>
-                <ol className="list-decimal list-inside space-y-0.5 text-[11px]">
-                  {isSikkim ? (
-                    <>
-                      <li>Issue traffic diversion via NH-717A Pakyong bypass.</li>
-                      <li>Instruct BRO heavy machinery unit at Singtam for slope toe inspection.</li>
-                      <li>Verify tension cracks on upper Dikchu hillside with SDRF team.</li>
-                    </>
-                  ) : (
-                    <>
-                      <li>Maintain single-lane regulated convoy on NH-27 Haflong Ghat.</li>
-                      <li>Deploy NFR patrol unit along railway hill section cut-slope.</li>
-                      <li>Clear culvert runoff at Haflong Hospital access junction.</li>
-                    </>
-                  )}
-                </ol>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-end space-x-2 pt-2">
-              <button
-                onClick={() => setIsAiModalOpen(false)}
-                className="px-4 py-2 rounded-xl text-xs text-[#8E99A8] hover:text-white cursor-pointer"
-              >
-                Dismiss
-              </button>
-              <button
-                onClick={() => {
-                  setIsAiModalOpen(false);
-                  if (onTriggerSOP) onTriggerSOP();
-                }}
-                className="px-4 py-2 rounded-xl bg-[#EA580C] hover:bg-[#F97316] text-white text-xs font-bold transition-colors cursor-pointer"
-              >
-                View Full SOP & Evacuation Plan
+                <div className="flex items-center space-x-2">
+                  <FileText className="w-4 h-4 text-[#167F78] group-hover:text-white" />
+                  <div className="flex flex-col text-left">
+                    <span className="text-[11px] font-bold text-[#F8FAFC] group-hover:text-white">
+                      EXECUTIVE DOSSIER REPORT
+                    </span>
+                    <span className="text-[9px] text-[#94A3B8] group-hover:text-white/80 font-mono">
+                      Generate formal multi-agency PDF
+                    </span>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-3.5 h-3.5 text-[#167F78] group-hover:text-white" />
               </button>
             </div>
           </div>
-        </div>
-      )}
+        </section>
+      </main>
 
-      {/* Red Zone Inspector Modal */}
-      {inspectingZone && (
-        <RedZoneInspector
-          zone={inspectingZone}
-          onClose={() => setInspectingZone(null)}
-          isModal={true}
-          onTriggerSOP={onTriggerSOP}
+      {/* Internal Executive Report Modal Fallback */}
+      {isReportModalOpen && (
+        <ExecutiveReportModal
+          isOpen={isReportModalOpen}
+          onClose={() => setIsReportModalOpen(false)}
+          assessmentResult={assessmentResult}
+          riskResult={riskResult}
         />
       )}
     </div>

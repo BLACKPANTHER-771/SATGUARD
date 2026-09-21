@@ -235,7 +235,7 @@ export const AlertCenterView: React.FC<AlertCenterViewProps> = ({
           <div className="space-y-1 text-xs">
             <div className="flex items-center space-x-2">
               <span className="text-[10px] font-mono px-2 py-0.2 rounded bg-[#167F78]/10 text-[#167F78] font-semibold border border-[#167F78]/25">
-                EPOCH DECISION-SUPPORT ALERT
+                SATGUARD DECISION-SUPPORT ALERT
               </span>
               <span className="text-[10px] text-[#167F78] font-mono font-semibold">HUMAN APPROVAL REQUIRED</span>
             </div>

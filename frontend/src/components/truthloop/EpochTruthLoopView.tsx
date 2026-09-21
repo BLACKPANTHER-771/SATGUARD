@@ -164,7 +164,7 @@ export const EpochTruthLoopView: React.FC<EpochTruthLoopViewProps> = ({
           <div className="flex items-center space-x-2">
             <div className="w-2.5 h-2.5 rounded-full bg-[#167F78]" />
             <h1 className="font-semibold text-sm text-[#172126] tracking-wide">
-              EPOCH TRUTH LOOP & FIELD VERIFICATION ENGINE
+              SATGUARD TRUTH LOOP & FIELD VERIFICATION ENGINE
             </h1>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#167F78]/10 text-[#167F78] border border-[#167F78]/25 font-semibold">
               CLOSED-LOOP AUDIT

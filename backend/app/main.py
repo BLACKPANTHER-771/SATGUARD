@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.endpoints import router as api_router
 
 app = FastAPI(
-    title="EPOCH - AI Landslide Early-Warning & Decision Support API",
+    title="SatGuard - AI Landslide Early-Warning & Disaster Decision Support API",
     description="Geospatial Early Warning & Disaster Decision Support Platform for India's North Eastern Region (SIH PS SIH26001)",
     version="2.5.0"
 )
@@ -42,7 +42,7 @@ app.include_router(api_router, prefix="/api/v1")
 def root_status():
     return {
         "status": "ONLINE",
-        "system": "EPOCH Geospatial Command Intelligence",
+        "system": "SatGuard Geospatial Command Intelligence",
         "region": "All 8 North Eastern States (Assam, Sikkim, Meghalaya, Arunachal Pradesh, Manipur, Mizoram, Nagaland, Tripura)",
         "api_docs": "/docs",
         "endpoints": "/api/v1/risk/summary"

@@ -30,8 +30,14 @@ from app.models.schemas import (
     SyncStatusResponse
 )
 from app.risk_engine.calculator import LandslideRiskEngine
+from app.api.assessment_endpoints import router as assessment_router
+from app.api.risk_endpoints import router as risk_router
+from app.api.history_endpoints import router as history_router
 
 router = APIRouter()
+router.include_router(assessment_router)
+router.include_router(risk_router)
+router.include_router(history_router)
 
 # In-memory storage for newly submitted incidents
 CUSTOM_INCIDENTS = []

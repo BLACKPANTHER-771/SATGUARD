@@ -1,5 +1,7 @@
 export type ViewType = 
   | 'command_center'
+  | 'damage_assessment'
+  | 'change_detection'
   | 'truth_loop'
   | 'field_mode'
   | 'risk_intelligence'
@@ -14,6 +16,312 @@ export type ViewType =
   | 'historical_view'
   | 'alert_center'
   | 'pipeline_view';
+
+// ==============================================================================
+// EPOCH PHASE 2 - DAMAGE ASSESSMENT ENGINE TYPES
+// ==============================================================================
+
+export type DamageClass = 'DESTROYED' | 'MAJOR_DAMAGE' | 'MINOR_DAMAGE' | 'NO_DAMAGE';
+export type VerificationStatus = 'UNVERIFIED' | 'VERIFIED' | 'REJECTED' | 'NEEDS_REVIEW';
+export type AssessmentMode = 'DEMO' | 'UPLOADED';
+export type ProcessingStage = 
+  | 'READY'
+  | 'LOADING_IMAGERY'
+  | 'VALIDATING'
+  | 'ALIGNING'
+  | 'DETECTING_CHANGE'
+  | 'ANALYSING_STRUCTURES'
+  | 'EXTRACTING_FEATURES'
+  | 'CLASSIFYING'
+  | 'CALCULATING_CONFIDENCE'
+  | 'COMPLETE'
+  | 'PROCESSING_ERROR';
+
+export interface DamageFeatures {
+  pixelChange: number;
+  edgeChange: number;
+  textureChange: number;
+  structuralChange: number;
+  areaChange: number;
+  builtUpChange: number;
+  disappearanceEvidence: number;
+  appearanceEvidence: number;
+}
+
+export interface DamageMapItem {
+  structureId: string;
+  geometry: { bbox?: number[]; type?: string; coordinates?: any };
+  damageClass: DamageClass;
+  confidence: number;
+}
+
+export type HeightDataSource = 'ACTUAL_MEASURED' | 'DEM_DERIVED' | 'SYNTHETIC_DEMO';
+
+export interface DetectedStructure {
+  structureId: string;
+  name: string;
+  geometry: { bbox: number[]; type: string };
+  centerLat: number;
+  centerLng: number;
+  footprintAreaM2: number;
+  estimatedHeightM?: number;
+  heightSource?: HeightDataSource;
+  beforeEvidence?: string;
+  afterEvidence?: string;
+  features: DamageFeatures;
+  changeScore: number;
+  structuralChangeScore: number;
+  damageClass: DamageClass;
+  confidence: number;
+  verificationStatus: VerificationStatus;
+  explanation: string;
+  isSyntheticFootprint: boolean;
+  assessorNotes?: string;
+  verifiedBy?: string;
+  verifiedAt?: string;
+}
+
+// Phase 4 Spatial Risk Layer Contract
+export interface RiskSpatialLayer {
+  layerId: string;
+  factorName: string;
+  category: 'METEOROLOGICAL' | 'GEOMORPHOLOGICAL' | 'HYDROLOGICAL' | 'HISTORICAL' | 'GEOTECHNICAL';
+  geometryType: 'Polygon' | 'MultiPolygon' | 'LineString' | 'Point';
+  coordinates: any;
+  value: string | number;
+  normalizedScore: number;
+  source: string;
+  timestamp: string;
+  confidence: number;
+  threatLevel: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+}
+
+export interface RiskSpatialDataset {
+  zoneId: string;
+  layers: RiskSpatialLayer[];
+  metadata: {
+    crs: string;
+    datum: string;
+    generatedAt: string;
+    disclaimer: string;
+  };
+}
+
+export interface AssessmentStatistics {
+  totalStructures: number;
+  destroyedCount: number;
+  majorDamageCount: number;
+  minorDamageCount: number;
+  noDamageCount: number;
+  destroyedPercentage: number;
+  majorDamagePercentage: number;
+  minorDamagePercentage: number;
+  noDamagePercentage: number;
+  averageConfidence: number;
+  verifiedCount: number;
+  unverifiedCount: number;
+  needsReviewCount: number;
+  totalFootprintAreaM2: number;
+  damagedFootprintAreaM2: number;
+}
+
+export interface ChangeDetectionSummary {
+  changeScore: number;
+  changedAreaM2: number;
+  changePercentage: number;
+  noiseFiltered: boolean;
+  changeMaskBase64?: string;
+  hotspotCount: number;
+  disclaimer: string;
+}
+
+export interface AssessmentResult {
+  eventId: string;
+  sceneId: string;
+  mode: AssessmentMode;
+  sceneMetadata: {
+    title: string;
+    location: {
+      name: string;
+      state: string;
+      district: string;
+      lat: number;
+      lng: number;
+      corridor?: string;
+    };
+    sensor: string;
+    resolution: string;
+    acquisitionDates: { before: string; after: string };
+    disclaimer: string;
+    thresholdConfig: string;
+  };
+  changeDetection: ChangeDetectionSummary;
+  structures: DetectedStructure[];
+  statistics: AssessmentStatistics;
+  damageMapData: DamageMapItem[];
+  processingMetadata: {
+    engine: string;
+    version: string;
+    processingLatencyMs: number;
+    timestamp: string;
+    alignmentMethod: string;
+    registrationLabel: string;
+    thresholdStatus?: string;
+  };
+}
+
+// ============================================================
+// PHASE 3: RISK INTELLIGENCE & EVENT HISTORY TYPES
+// ============================================================
+
+export interface RiskFactorContribution {
+  factor: string;
+  category: string;
+  rawValue: string;
+  normalizedScore: number | null;
+  configuredWeight: number;
+  effectiveWeight: number;
+  contributionPoints: number;
+  source: string;
+  isAvailable: boolean;
+  status: 'AVAILABLE' | 'DATA_UNAVAILABLE' | 'SYNTHETIC';
+  explanation: string;
+}
+
+export interface ObservedDamageContext {
+  totalStructures: number;
+  destroyedCount: number;
+  majorDamageCount: number;
+  minorDamageCount: number;
+  noDamageCount: number;
+  changeScore: number;
+  damagedFootprintAreaM2: number;
+  damagedStructureDensityPct: number;
+  verifiedCount: number;
+  unverifiedCount: number;
+  provenance: string;
+  isSyntheticFootprints: boolean;
+}
+
+export interface RiskAssessmentResult {
+  zoneId: string;
+  zoneName: string;
+  state: string;
+  district: string;
+  overallRiskScore: number;
+  riskLevel: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+  primaryFactor: string;
+  secondaryFactor: string;
+  factorContributions: RiskFactorContribution[];
+  observedDamageContext?: ObservedDamageContext | null;
+  exposureScore: number;
+  responsePriority: string;
+  priorityAreas: string[];
+  missingFactorsHandled: string[];
+  disclaimer: string;
+  isSynthetic: boolean;
+  timestamp: string;
+}
+
+export interface EventImageryRecord {
+  beforeImageRef: string;
+  afterImageRef: string;
+  sensor: string;
+  acquisitionDates: string;
+  resolution: string;
+}
+
+export interface EventDamageAssessmentSummary {
+  totalStructures: number;
+  destroyedCount: number;
+  majorDamageCount: number;
+  minorDamageCount: number;
+  noDamageCount: number;
+  destroyedPercentage: number;
+  majorDamagePercentage: number;
+  minorDamagePercentage: number;
+  noDamagePercentage: number;
+  averageConfidence: number;
+  changeScore: number;
+  changedAreaM2: number;
+  changePercentage: number;
+  damagedFootprintAreaM2: number;
+}
+
+export interface EventVerificationSummary {
+  verifiedCount: number;
+  unverifiedCount: number;
+  needsReviewCount: number;
+  rejectedCount: number;
+  verificationProgressPct: number;
+  lastVerifiedAt?: string | null;
+}
+
+export interface EventRiskSummary {
+  overallRiskScore: number;
+  riskLevel: 'LOW' | 'MODERATE' | 'HIGH' | 'CRITICAL';
+  primaryFactor: string;
+  secondaryFactor: string;
+  factorContributions: RiskFactorContribution[];
+}
+
+export interface EventMetadata {
+  engine: string;
+  version: string;
+  mode: 'DEMO' | 'UPLOADED' | 'REAL';
+  recordedAt: string;
+  recordedBy: string;
+  notes?: string | null;
+}
+
+export interface HistoricalEventRecord {
+  eventId: string;
+  eventName: string;
+  location: string;
+  state: string;
+  district?: string | null;
+  disasterType: string;
+  eventDate: string;
+  imagery: EventImageryRecord;
+  assessment: EventDamageAssessmentSummary;
+  verification: EventVerificationSummary;
+  riskAssessment: EventRiskSummary;
+  metadata: EventMetadata;
+  tags?: string[];
+}
+
+export interface BitemporalScenePair {
+  eventId: string;
+  sceneId: string;
+  title: string;
+  location: {
+    name: string;
+    state: string;
+    district: string;
+    lat: number;
+    lng: number;
+    corridor?: string;
+  };
+  beforeImage: string;
+  afterImage: string;
+  acquisitionDates: { before: string; after: string };
+  sensor: string;
+  resolutionGsd: string;
+  mode: AssessmentMode;
+  structureCount?: number;
+  disclaimer?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface VerificationActionRequest {
+  sceneId: string;
+  structureId: string;
+  action: 'VERIFY' | 'REJECT' | 'NEEDS_REVIEW' | 'MODIFY_CLASSIFICATION';
+  modifiedClass?: DamageClass;
+  notes?: string;
+  assessorId?: string;
+}
+
 
 export type LanguageCode = 'en' | 'hi' | 'as' | 'bn';
 export type SyncStatus = 'ONLINE' | 'OFFLINE' | 'SYNCING' | 'SYNCED';

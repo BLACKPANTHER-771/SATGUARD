@@ -1,0 +1,384 @@
+[
+  {
+    "eventId": "sikkim-teesta-flood-2026",
+    "eventName": "Sikkim Teesta River Flash Flood & Debris Inundation",
+    "location": "NH-10 Dikchu\u2013Singtam Riverfront Corridor",
+    "state": "Sikkim",
+    "district": "Pakyong / East Sikkim",
+    "disasterType": "FLASH_FLOOD_DEBRIS_FLOW",
+    "eventDate": "2026-09-03",
+    "imagery": {
+      "beforeImageRef": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      "afterImageRef": "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?auto=format&fit=crop&w=1200&q=80",
+      "sensor": "Sentinel-2 MSI / Demonstration EO",
+      "acquisitionDates": "28 Aug 2026 (Pre) / 03 Sept 2026 (Post)",
+      "resolution": "source-dependent / demonstration imagery"
+    },
+    "assessment": {
+      "totalStructures": 10,
+      "destroyedCount": 0,
+      "majorDamageCount": 3,
+      "minorDamageCount": 1,
+      "noDamageCount": 6,
+      "destroyedPercentage": 0.0,
+      "majorDamagePercentage": 30.0,
+      "minorDamagePercentage": 10.0,
+      "noDamagePercentage": 60.0,
+      "averageConfidence": 0.9219,
+      "changeScore": 0.428,
+      "changedAreaM2": 89400.0,
+      "changePercentage": 26.4,
+      "damagedFootprintAreaM2": 2190.0
+    },
+    "verification": {
+      "verifiedCount": 0,
+      "unverifiedCount": 10,
+      "needsReviewCount": 0,
+      "rejectedCount": 0,
+      "verificationProgressPct": 0.0,
+      "lastVerifiedAt": null
+    },
+    "riskAssessment": {
+      "overallRiskScore": 84.7,
+      "riskLevel": "CRITICAL",
+      "primaryFactor": "Precipitation & Intensity",
+      "secondaryFactor": "Geometrical Slope Angle",
+      "factorContributions": [
+        {
+          "factor": "Precipitation & Intensity",
+          "category": "METEOROLOGICAL",
+          "rawValue": "1h: 22.4 mm/hr | 72h: 142.6 mm",
+          "normalizedScore": 84.87,
+          "configuredWeight": 0.38,
+          "effectiveWeight": 0.38,
+          "contributionPoints": 32.25,
+          "source": "IMD Automated Weather Station (AWS-NH10)",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Antecedent 72h precipitation accumulation (142.6 mm) elevated pore-water pressures."
+        },
+        {
+          "factor": "Geometrical Slope Angle",
+          "category": "GEOMORPHOLOGICAL",
+          "rawValue": "38.5\u00b0 (Steep)",
+          "normalizedScore": 85.56,
+          "configuredWeight": 0.29,
+          "effectiveWeight": 0.29,
+          "contributionPoints": 24.81,
+          "source": "SRTM 30m Digital Elevation Model",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Steep 38.5\u00b0 valley walls flank NH-10 road formation."
+        },
+        {
+          "factor": "Volumetric Soil Moisture",
+          "category": "HYDROLOGICAL",
+          "rawValue": "84.2% Saturation (Over-Saturated)",
+          "normalizedScore": 84.2,
+          "configuredWeight": 0.18,
+          "effectiveWeight": 0.18,
+          "contributionPoints": 15.16,
+          "source": "ISRO / SAC InSAR Soil Saturation Mesh",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Subsurface topsoil over-saturation causing shear strength degradation."
+        },
+        {
+          "factor": "Historical Landslide Frequency",
+          "category": "HISTORICAL",
+          "rawValue": "6 Events in past 5 Years",
+          "normalizedScore": 75.0,
+          "configuredWeight": 0.09,
+          "effectiveWeight": 0.09,
+          "contributionPoints": 6.75,
+          "source": "Geological Survey of India National Landslide Database",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "6 recorded historical slope reactivations in this sector."
+        },
+        {
+          "factor": "Bedrock Lithology & Structure",
+          "category": "GEOTECHNICAL",
+          "rawValue": "Daling Group Weathered Phyllite and Colluvial Debris",
+          "normalizedScore": 95.0,
+          "configuredWeight": 0.06,
+          "effectiveWeight": 0.06,
+          "contributionPoints": 5.7,
+          "source": "GSI Quadrangle Map 1:50k",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Highly weathered sheared phyllite matrix prone to rapid liquefaction."
+        }
+      ]
+    },
+    "metadata": {
+      "engine": "EPOCH Unified Disaster Assessment Engine",
+      "version": "2.0.0-PROTOTYPE",
+      "mode": "SYNTHETIC DEMO",
+      "recordedAt": "2026-09-20T11:17:46.348522+00:00",
+      "recordedBy": "EPOCH Institutional Operations Desk",
+      "notes": "Authoritative demonstration baseline event for Sikkim NH-10 corridor."
+    },
+    "tags": [
+      "SIKKIM",
+      "NH-10",
+      "TEESTA",
+      "FLASH_FLOOD",
+      "DEMO"
+    ]
+  },
+  {
+    "eventId": "wayanad-chooralmala-2024",
+    "eventName": "Wayanad Chooralmala & Meppadi Multi-Tier Landslide",
+    "location": "Chooralmala\u2013Mundakkai Valley",
+    "state": "Kerala",
+    "district": "Wayanad",
+    "disasterType": "LANDSLIDE",
+    "eventDate": "2024-07-30",
+    "imagery": {
+      "beforeImageRef": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      "afterImageRef": "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?auto=format&fit=crop&w=1200&q=80",
+      "sensor": "RISAT-1A / Sentinel-2 MSI",
+      "acquisitionDates": "24 Jul 2024 (Pre) / 31 Jul 2024 (Post)",
+      "resolution": "10m optical / 3m SAR"
+    },
+    "assessment": {
+      "totalStructures": 312,
+      "destroyedCount": 148,
+      "majorDamageCount": 76,
+      "minorDamageCount": 34,
+      "noDamageCount": 54,
+      "destroyedPercentage": 47.4,
+      "majorDamagePercentage": 24.4,
+      "minorDamagePercentage": 10.9,
+      "noDamagePercentage": 17.3,
+      "averageConfidence": 0.942,
+      "changeScore": 0.784,
+      "changedAreaM2": 420000.0,
+      "changePercentage": 48.2,
+      "damagedFootprintAreaM2": 34500.0
+    },
+    "verification": {
+      "verifiedCount": 285,
+      "unverifiedCount": 27,
+      "needsReviewCount": 0,
+      "rejectedCount": 0,
+      "verificationProgressPct": 91.3,
+      "lastVerifiedAt": "2024-08-04T12:00:00Z"
+    },
+    "riskAssessment": {
+      "overallRiskScore": 92.4,
+      "riskLevel": "CRITICAL",
+      "primaryFactor": "Precipitation & Intensity",
+      "secondaryFactor": "Volumetric Soil Moisture",
+      "factorContributions": [
+        {
+          "factor": "Precipitation & Intensity",
+          "category": "METEOROLOGICAL",
+          "rawValue": "24h: 372.6 mm | 72h: 572.0 mm",
+          "normalizedScore": 98.5,
+          "configuredWeight": 0.38,
+          "effectiveWeight": 0.38,
+          "contributionPoints": 37.43,
+          "source": "IMD Automatic Weather Station (Mundakkai)",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Extreme antecedent monsoon downpour triggering catastrophic pore pressure surge."
+        },
+        {
+          "factor": "Geometrical Slope Angle",
+          "category": "GEOMORPHOLOGICAL",
+          "rawValue": "42.0\u00b0 (High Gradient)",
+          "normalizedScore": 93.33,
+          "configuredWeight": 0.29,
+          "effectiveWeight": 0.29,
+          "contributionPoints": 27.07,
+          "source": "Cartosat DEM 10m",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Steep escarpment morphology accelerating debris flow velocity."
+        },
+        {
+          "factor": "Volumetric Soil Moisture",
+          "category": "HYDROLOGICAL",
+          "rawValue": "96.4% Saturation",
+          "normalizedScore": 96.4,
+          "configuredWeight": 0.18,
+          "effectiveWeight": 0.18,
+          "contributionPoints": 17.35,
+          "source": "Sentinel-1 SAR Soil Moisture Product",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Near-complete soil saturation inducing shear failure plane."
+        },
+        {
+          "factor": "Historical Landslide Frequency",
+          "category": "HISTORICAL",
+          "rawValue": "4 Events in past 5 Years",
+          "normalizedScore": 60.0,
+          "configuredWeight": 0.09,
+          "effectiveWeight": 0.09,
+          "contributionPoints": 5.4,
+          "source": "GSI Landslide Susceptibility Archive",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Historical crown scar reactivations."
+        },
+        {
+          "factor": "Bedrock Lithology & Structure",
+          "category": "GEOTECHNICAL",
+          "rawValue": "Charnockite and Lateritic Residual Soil",
+          "normalizedScore": 85.0,
+          "configuredWeight": 0.06,
+          "effectiveWeight": 0.06,
+          "contributionPoints": 5.1,
+          "source": "GSI Quadrangle Map 1:50k",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Deep lateritic saprolite cover over impervious bedrock."
+        }
+      ]
+    },
+    "metadata": {
+      "engine": "EPOCH Disaster Assessment Catalog",
+      "version": "1.8.0",
+      "mode": "REAL",
+      "recordedAt": "2024-08-05T08:30:00Z",
+      "recordedBy": "EPOCH Institutional Operations Desk",
+      "notes": "Catastrophic rainfall-triggered debris slide resulting in severe settlement damage."
+    },
+    "tags": [
+      "WAYANAD",
+      "KERALA",
+      "LANDSLIDE",
+      "HISTORICAL_RECORD"
+    ]
+  },
+  {
+    "eventId": "joshimath-subsidence-2023",
+    "eventName": "Joshimath Urban Slope Subsidence & Fissure Creep",
+    "location": "Joshimath Town Sector (NH-07)",
+    "state": "Uttarakhand",
+    "district": "Chamoli",
+    "disasterType": "SLOPE_COLLAPSE",
+    "eventDate": "2023-01-05",
+    "imagery": {
+      "beforeImageRef": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+      "afterImageRef": "https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?auto=format&fit=crop&w=1200&q=80",
+      "sensor": "Sentinel-1 InSAR / Cartosat-2",
+      "acquisitionDates": "Dec 2022 (Pre) / Jan 2023 (Post)",
+      "resolution": "Differential Interferometric PS-InSAR"
+    },
+    "assessment": {
+      "totalStructures": 868,
+      "destroyedCount": 0,
+      "majorDamageCount": 181,
+      "minorDamageCount": 687,
+      "noDamageCount": 0,
+      "destroyedPercentage": 0.0,
+      "majorDamagePercentage": 20.9,
+      "minorDamagePercentage": 79.1,
+      "noDamagePercentage": 0.0,
+      "averageConfidence": 0.887,
+      "changeScore": 0.345,
+      "changedAreaM2": 185000.0,
+      "changePercentage": 18.5,
+      "damagedFootprintAreaM2": 52400.0
+    },
+    "verification": {
+      "verifiedCount": 868,
+      "unverifiedCount": 0,
+      "needsReviewCount": 0,
+      "rejectedCount": 0,
+      "verificationProgressPct": 100.0,
+      "lastVerifiedAt": "2023-01-20T18:00:00Z"
+    },
+    "riskAssessment": {
+      "overallRiskScore": 78.2,
+      "riskLevel": "CRITICAL",
+      "primaryFactor": "Geometrical Slope Angle",
+      "secondaryFactor": "Bedrock Lithology & Structure",
+      "factorContributions": [
+        {
+          "factor": "Precipitation & Intensity",
+          "category": "METEOROLOGICAL",
+          "rawValue": "Winter Base Flow / Low Rain",
+          "normalizedScore": 35.0,
+          "configuredWeight": 0.38,
+          "effectiveWeight": 0.38,
+          "contributionPoints": 13.3,
+          "source": "IMD Joshimath Station",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Subsurface piping and aquifer seepage active during dry season."
+        },
+        {
+          "factor": "Geometrical Slope Angle",
+          "category": "GEOMORPHOLOGICAL",
+          "rawValue": "34.0\u00b0 (Overburden Slope)",
+          "normalizedScore": 75.56,
+          "configuredWeight": 0.29,
+          "effectiveWeight": 0.29,
+          "contributionPoints": 21.91,
+          "source": "Cartosat DEM 10m",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Glacio-fluvial overburden slope with active toe erosion from Dhauliganga."
+        },
+        {
+          "factor": "Volumetric Soil Moisture",
+          "category": "HYDROLOGICAL",
+          "rawValue": "62.0% Saturation",
+          "normalizedScore": 62.0,
+          "configuredWeight": 0.18,
+          "effectiveWeight": 0.18,
+          "contributionPoints": 11.16,
+          "source": "InSAR Coherence Loss & Moisture Proxy",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Internal aquifer breach saturating moraine deposit."
+        },
+        {
+          "factor": "Historical Landslide Frequency",
+          "category": "HISTORICAL",
+          "rawValue": "Mishra Committee (1976) Documented Zone",
+          "normalizedScore": 90.0,
+          "configuredWeight": 0.09,
+          "effectiveWeight": 0.09,
+          "contributionPoints": 8.1,
+          "source": "Mishra Commission Report / GSI Inventory",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Historic chronic subsidence and creeping morainic slope."
+        },
+        {
+          "factor": "Bedrock Lithology & Structure",
+          "category": "GEOTECHNICAL",
+          "rawValue": "Old Morainic Debris & Weathered Gneiss Overburden",
+          "normalizedScore": 98.0,
+          "configuredWeight": 0.06,
+          "effectiveWeight": 0.06,
+          "contributionPoints": 5.88,
+          "source": "GSI Quadrangle Map 1:50k",
+          "isAvailable": true,
+          "status": "AVAILABLE",
+          "explanation": "Non-cohesive glaciogenic debris susceptible to bearing failure."
+        }
+      ]
+    },
+    "metadata": {
+      "engine": "EPOCH Disaster Assessment Catalog",
+      "version": "1.5.0",
+      "mode": "REAL",
+      "recordedAt": "2023-01-22T10:00:00Z",
+      "recordedBy": "EPOCH Institutional Operations Desk",
+      "notes": "Reactivated morainic colluvium creep with structural foundation shear."
+    },
+    "tags": [
+      "UTTARAKHAND",
+      "JOSHIMATH",
+      "SUBSIDENCE",
+      "HISTORICAL_RECORD"
+    ]
+  }
+]

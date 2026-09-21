@@ -22,6 +22,7 @@ import { getPrimaryAOIForState } from './data/command-centre/aoiRegistry';
 import { CheckCircle2 } from 'lucide-react';
 // Layout Components
 import { Header } from './components/layout/Header';
+import { EventInfoBar } from './components/layout/EventInfoBar';
 import { Navigation } from './components/layout/Navigation';
 import { PipelineStatusBar } from './components/layout/PipelineStatusBar';
 
@@ -48,6 +49,10 @@ import { SoilMoistureView } from './components/views/SoilMoistureView';
 import { SatelliteIntelligenceView } from './components/views/SatelliteIntelligenceView';
 import { HistoricalEventsView } from './components/views/HistoricalEventsView';
 import { AlertCenterView } from './components/views/AlertCenterView';
+
+// Phase 2 Damage Assessment Views
+import { DamageAssessmentView } from './components/views/DamageAssessmentView';
+import { ChangeDetectionView } from './components/views/ChangeDetectionView';
 
 // Modals
 import { ReportIncidentModal } from './components/incidents/ReportIncidentModal';
@@ -196,7 +201,7 @@ export const App: React.FC = () => {
       <div className="min-h-screen bg-[#EEE9DC] text-[#167F78] flex flex-col items-center justify-center font-mono space-y-3">
         <div className="w-8 h-8 rounded-full border-2 border-[#167F78] border-t-transparent animate-spin" />
         <div className="text-xs font-semibold tracking-widest uppercase text-[#667579]">
-          INITIALIZING EPOCH GEOSPATIAL COMMAND CENTER...
+          INITIALIZING SATGUARD GEOSPATIAL COMMAND CENTER...
         </div>
       </div>
     );
@@ -227,7 +232,15 @@ export const App: React.FC = () => {
         onOpenFieldApp={() => setCurrentView('field_mode')}
       />
 
-      {/* 2. Navigation & Processing Chain Bar */}
+      {/* 2. Event Information & Rapid Action Bar */}
+      <EventInfoBar
+        currentView={currentView}
+        onSelectView={setCurrentView}
+        selectedState={selectedState}
+        selectedSectorName={activeZone?.name}
+      />
+
+      {/* 3. Navigation & Processing Chain Bar */}
       <Navigation currentView={currentView} onSelectView={setCurrentView} />
       <PipelineStatusBar
         steps={[]}
@@ -235,7 +248,7 @@ export const App: React.FC = () => {
       />
 
       {/* 3. Main Operational Viewport */}
-      <main className={`flex-1 overflow-hidden flex flex-col min-h-0 view-animate ${currentView === 'command_center' || currentView === 'map_3d' ? 'p-0' : 'p-3'}`}>
+      <main className={`flex-1 overflow-hidden flex flex-col min-h-0 view-animate ${currentView === 'command_center' || currentView === 'map_3d' || currentView === 'satellite_view' ? 'p-0' : 'p-3'}`}>
         {/* VIEW 1: COMMAND CENTER (Primary Mission Control - OpenWeather Operations Dashboard) */}
         {currentView === 'command_center' && (
           <div className="flex-1 flex flex-col min-h-0 overflow-hidden h-full w-full">
@@ -259,6 +272,8 @@ export const App: React.FC = () => {
               selectedLanguage={selectedLanguage}
               onSelectLanguage={setSelectedLanguage}
               isOfflineMode={isOfflineMode}
+              onSelectView={setCurrentView}
+              onOpenReportModal={() => setIsReportModalOpen(true)}
             />
           </div>
         )}
@@ -343,6 +358,10 @@ export const App: React.FC = () => {
           <SatelliteIntelligenceView
             observations={satelliteObs}
             selectedState={selectedState}
+            onSelectView={setCurrentView}
+            selectedZone={activeZone}
+            onSelectZone={handleSelectZone}
+            zones={displayedZones.length > 0 ? displayedZones : zones}
           />
         )}
 
@@ -351,6 +370,7 @@ export const App: React.FC = () => {
           <HistoricalEventsView
             events={historicalEvents}
             selectedState={selectedState}
+            onSelectView={setCurrentView}
           />
         )}
 
@@ -388,6 +408,16 @@ export const App: React.FC = () => {
         {/* VIEW 13: 8-STAGE DATA PIPELINE */}
         {currentView === 'pipeline_view' && (
           <PipelineArchitectureView steps={[]} />
+        )}
+
+        {/* VIEW 14: PHASE 2 INTERNAL DAMAGE ASSESSMENT ENGINE */}
+        {currentView === 'damage_assessment' && (
+          <DamageAssessmentView onSelectView={setCurrentView} />
+        )}
+
+        {/* VIEW 15: PHASE 2 BITEMPORAL CHANGE DETECTION */}
+        {currentView === 'change_detection' && (
+          <ChangeDetectionView onSelectView={setCurrentView} />
         )}
       </main>
 

@@ -173,9 +173,9 @@
   "risk_zones": [
     {
       "id": "sikkim-nh10-dikchu",
-      "name": "Dikchu - Singtam Sector (NH-10 KM 19)",
+      "name": "Chungthang Basin (Teesta-III Dam Corridor)",
       "state": "Sikkim",
-      "district": "Pakyong / Gangtok",
+      "district": "Mangan District",
       "lat": 27.3389,
       "lng": 88.6065,
       "elevation_m": 1240,

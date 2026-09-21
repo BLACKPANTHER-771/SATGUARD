@@ -556,7 +556,7 @@ export const RedZoneInspector: React.FC<RedZoneInspectorProps> = ({
       <div className="p-2.5 rounded-xl bg-[#FAF8F1] border border-[#D7DEDC] text-[10px] text-[#667579] leading-relaxed flex items-start space-x-2">
         <Info className="w-4 h-4 text-[#667579] shrink-0 mt-0.5" />
         <div>
-          <strong>EPOCH Decision-Support Disclaimer:</strong> {analysis.disclaimer}
+          <strong>SatGuard Decision-Support Disclaimer:</strong> {analysis.disclaimer}
         </div>
       </div>
     </div>

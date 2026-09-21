@@ -1,7 +1,7 @@
 {
-  "name": "EPOCH Field",
-  "short_name": "EPOCH",
-  "description": "EPOCH Field Operations & Ground Truth Offline Reporting App for North East India",
+  "name": "SatGuard Field",
+  "short_name": "SatGuard",
+  "description": "SatGuard Field Operations & Ground Truth Offline Reporting App for North East India",
   "start_url": "/?view=field_mode",
   "id": "/?view=field_mode",
   "display": "standalone",

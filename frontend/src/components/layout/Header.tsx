@@ -71,7 +71,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center space-x-3">
           <div className="flex items-baseline space-x-2.5">
             <span className="font-brand text-[44px] text-[#172126] font-normal italic tracking-normal select-none leading-none">
-              Epoch
+              SatGuard
             </span>
             <span className="text-[11px] text-[#667579] font-medium tracking-tight">
               SIH26001 · North East India
@@ -83,11 +83,11 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="hidden md:flex items-center space-x-2 text-xs">
           <span className="text-[#667579] uppercase tracking-wider text-[11px] font-medium">Region:</span>
           <span className="text-[#172126] font-semibold text-sm">
-            {selectedZone?.state || 'Sikkim'}
+            {selectedState === 'Assam' ? 'Assam — Dima Hasao' : 'Sikkim — Mangan District'}
           </span>
           <span className="text-[#D7DEDC] mx-1">•</span>
           <span className="text-[#167F78] font-medium text-xs">
-            {selectedZone?.name?.split('(')[0] || 'Dikchu – Singtam Sector'}
+            {selectedState === 'Assam' ? 'Haflong Ghat Sector' : 'Chungthang Basin (Teesta-III Dam Corridor)'}
           </span>
         </div>
 
@@ -136,12 +136,12 @@ export const Header: React.FC<HeaderProps> = ({
                 const match = zones.find(z => z.id === e.target.value);
                 if (match) onSelectZone(match);
               }}
-              className="bg-transparent text-[#172126] font-medium text-xs focus:outline-none cursor-pointer hover:text-[#167F78] max-w-[200px] truncate"
+              className="bg-transparent text-[#172126] font-medium text-xs focus:outline-none cursor-pointer hover:text-[#167F78] max-w-[280px] truncate"
               aria-label="Select sector"
             >
               {zones.map((z) => (
                 <option key={z.id} value={z.id} className="bg-[#FAF8F1] text-[#172126]">
-                  {z.name.split('(')[0]}
+                  {z.name}
                 </option>
               ))}
             </select>

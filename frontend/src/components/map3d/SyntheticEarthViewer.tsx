@@ -30,7 +30,7 @@ import {
 } from 'lucide-react';
 import { SyntheticRiskEngine } from '../../data/synthetic/engine/syntheticRiskEngine';
 import { NERegionCode } from '../../data/synthetic/types';
-import { RiskZone } from '../../types';
+import { RiskZone, AssessmentResult, RiskAssessmentResult, VerificationActionRequest, DamageClass, VerificationStatus } from '../../types';
 import { RedZoneInspector } from '../intelligence/RedZoneInspector';
 
 interface SyntheticEarthViewerProps {
@@ -41,6 +41,11 @@ interface SyntheticEarthViewerProps {
   isFullScreen?: boolean;
   onToggleFullScreen?: () => void;
   onSelectFeature?: (featureType: string, featureId: string) => void;
+  assessmentResult?: AssessmentResult | null;
+  riskResult?: RiskAssessmentResult | null;
+  onVerifyStructure?: (actionReq: VerificationActionRequest) => Promise<void>;
+  centerLat?: number;
+  centerLng?: number;
 }
 
 export type CameraPreset =
@@ -65,6 +70,13 @@ interface BuildingInspectionData {
   nearest_road: string;
   nearest_incident: string;
   is_osm: boolean;
+  damage_class?: DamageClass;
+  confidence?: number;
+  change_score?: number;
+  footprint_area_m2?: number;
+  verification_status?: VerificationStatus;
+  before_image?: string;
+  after_image?: string;
 }
 
 export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
@@ -74,7 +86,12 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
   className = '',
   isFullScreen = false,
   onToggleFullScreen,
-  onSelectFeature
+  onSelectFeature,
+  assessmentResult,
+  riskResult,
+  onVerifyStructure,
+  centerLat,
+  centerLng
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
@@ -84,10 +101,30 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
   const [activePreset, setActivePreset] = useState<CameraPreset>('aoi');
   const [isLayerMenuOpen, setIsLayerMenuOpen] = useState(false);
   const [selectedLayerCat, setSelectedLayerCat] = useState<LayerCategory>('STRUCTURES');
-  const [inspectedBuilding, setInspectedBuilding] = useState<BuildingInspectionData | null>(null);
+  const [inspectedBuilding, setInspectedBuilding] = useState<BuildingInspectionData | null>({
+    id: 'SK-DKC-BLD-03',
+    name: 'SK-DKC-BLD-03 Collapsed Multi-Storey Ruin',
+    type: 'COLLAPSED HIGH-RISE RESIDENTIAL (PANCAKE FAILURE)',
+    lat: 27.3942,
+    lng: 88.5368,
+    height_m: '22.4 m',
+    hazard_exposure: 'CRITICAL STRUCTURAL FAILURE (DESTROYED)',
+    nearest_hazard: 'South Lhonak GLOF Hydrodynamic Surge Corridor',
+    nearest_road: 'National Highway 10 (NH-10 Corridor)',
+    nearest_incident: 'Structural column shear failure & progressive pancake collapse',
+    is_osm: false,
+    damage_class: 'DESTROYED',
+    confidence: 91,
+    change_score: 86.4,
+    footprint_area_m2: 432,
+    verification_status: 'UNVERIFIED',
+    before_image: '/assets/evidence_before.jpg',
+    after_image: '/assets/evidence_after.jpg'
+  });
   const [inspectedHazardZone, setInspectedHazardZone] = useState<RiskZone | null>(null);
   const [selectedLocationMenuOpen, setSelectedLocationMenuOpen] = useState(false);
   const [isHealthPanelOpen, setIsHealthPanelOpen] = useState(false);
+  const [show3dPreviewCard, setShow3dPreviewCard] = useState<boolean>(false);
 
   // Verified Provider Health States
   const [providerHealth, setProviderHealth] = useState({
@@ -132,6 +169,9 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
     stateBoundary: Cesium.Entity | null;
     roads: Cesium.Entity[];
     buildings: Cesium.Entity[];
+    damagedStructures: Cesium.Entity[];
+    failureNodes: Cesium.Entity[];
+    inspectionRays: Cesium.Entity[];
     rivers: Cesium.Entity[];
     bridges: Cesium.Entity[];
     infrastructure: Cesium.Entity[];
@@ -149,6 +189,9 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
     stateBoundary: null,
     roads: [],
     buildings: [],
+    damagedStructures: [],
+    failureNodes: [],
+    inspectionRays: [],
     rivers: [],
     bridges: [],
     infrastructure: [],
@@ -291,8 +334,8 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
         });
       } else {
         viewer.camera.flyTo({
-          destination: Cesium.Cartesian3.fromDegrees(88.5365, 27.3920, 1150),
-          orientation: { heading: Cesium.Math.toRadians(15), pitch: Cesium.Math.toRadians(-26), roll: 0.0 },
+          destination: Cesium.Cartesian3.fromDegrees(88.65060, 27.59400, 1450),
+          orientation: { heading: Cesium.Math.toRadians(15), pitch: Cesium.Math.toRadians(-28), roll: 0.0 },
           duration: 1.2
         });
       }
@@ -378,7 +421,35 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
             return;
           }
 
-          // Case 2: Clicked Building, Bridge, or Infrastructure
+          // Case 2: Clicked Damaged Structure, Failure Node, Building, Bridge, or Infrastructure
+          if (data?.type === 'DAMAGED_STRUCTURE' || data?.type === 'FAILURE_NODE') {
+            const isAssam = selectedRegion === 'ASSAM';
+            const bldId = data.id || (isAssam ? 'HAFLONG-SEC-01' : 'SK-DKC-BLD-03');
+            const dmgClass: DamageClass = data.damage_tier === 'MAJOR_DAMAGE' ? 'MAJOR_DAMAGE' : (data.damage_tier === 'MINOR_DAMAGE' ? 'MINOR_DAMAGE' : (data.damage_tier === 'NO_DAMAGE' ? 'NO_DAMAGE' : 'DESTROYED'));
+
+            setInspectedBuilding({
+              id: bldId,
+              name: data.name || (isAssam ? 'Haflong Ghat Collapsed High-Rise Complex' : 'SK-DKC-BLD-03 Collapsed Ruin'),
+              type: data.type_desc || 'COLLAPSED HIGH-RISE RESIDENTIAL (PANCAKE FAILURE)',
+              lat: Number(clickedLat.toFixed(5)),
+              lng: Number(clickedLng.toFixed(5)),
+              height_m: data.height_m ? `${data.height_m}` : '7 Storeys (22.4m Pancake Ruin)',
+              hazard_exposure: dmgClass === 'MAJOR_DAMAGE' ? 'HIGH DAMAGE EXPOSURE (MAJOR DAMAGE)' : (dmgClass === 'MINOR_DAMAGE' ? 'SUPERFICIAL DAMAGE (MINOR)' : 'CRITICAL STRUCTURAL FAILURE (DESTROYED)'),
+              nearest_hazard: isAssam ? 'Haflong Ghat Escarpment Landslip Zone' : 'Teesta River Hydrodynamic Surge Corridor',
+              nearest_road: isAssam ? 'NH-27 Ghat Corridor (KM 84)' : 'National Highway 10 (NH-10 Corridor)',
+              nearest_incident: isAssam ? 'Structural column shear failure & progressive floor pancake collapse' : 'Dam breach surge wave & riverbank toe hydraulic scour',
+              is_osm: false,
+              damage_class: dmgClass,
+              confidence: data.confidence || 91,
+              change_score: data.change_score || 86.4,
+              footprint_area_m2: data.footprint_area || 432,
+              verification_status: data.verification_status || 'UNVERIFIED',
+              before_image: '/assets/evidence_before.jpg',
+              after_image: '/assets/evidence_after.jpg'
+            });
+            return;
+          }
+
           if (data?.type === 'BUILDING') {
             setInspectedBuilding({
               id: data.id || entity.name || 'BLD-SYNTH',
@@ -804,6 +875,678 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
         }
       }
       entitiesRef.current.buildings = buildingEntities;
+
+      // D2. 3D DISASTER DAMAGE ASSETS & IMPACT FAILURE NODES (Haflong / Dikchu Escarpment Cluster)
+      const damagedEntities: Cesium.Entity[] = [];
+      const failureNodeEntities: Cesium.Entity[] = [];
+      const rayEntities: Cesium.Entity[] = [];
+
+      if (isAssam) {
+        // --- ASSAM / HAFLONG GHAT CORRIDOR DISASTER ASSET INJECTION ---
+        const hflCentroid = { lng: 93.0186, lat: 25.1711 };
+
+        // 1. Foundation Hazard Perimeter Polygon (Glowing red semi-transparent boundary)
+        const foundationHazardPolygon = viewer.entities.add({
+          name: 'HAFLONG-SEC-01 Hazard Perimeter',
+          polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray([
+              93.0177, 25.1705,
+              93.0176, 25.1716,
+              93.0187, 25.1719,
+              93.0196, 25.1715,
+              93.0194, 25.1706,
+              93.0186, 25.1704,
+              93.0177, 25.1705
+            ]),
+            material: Cesium.Color.fromCssColorString('rgba(220, 38, 38, 0.32)'),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString('#DC2626').withAlpha(0.95),
+            outlineWidth: 2.8,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 180000)
+          },
+          properties: {
+            type: 'DAMAGED_STRUCTURE',
+            id: 'HAFLONG-SEC-01',
+            name: 'Haflong Ghat Hazard Zone Footprint',
+            type_desc: 'EXCAVATED ESCARPMENT COLLAPSE PERIMETER'
+          }
+        });
+        damagedEntities.push(foundationHazardPolygon);
+
+        // 2. 5 Multi-Storey Concrete Building Blocks Arranged in Arc with Damaged Pitch/Roll Offsets
+        const damagedComplexBlocks = [
+          {
+            id: 'HFL-DMG-01A',
+            name: 'Haflong High-Rise Block A (West Wing - Tilted)',
+            lng: 93.0180,
+            lat: 25.1713,
+            heading: 25,
+            pitch: -14,
+            roll: 8,
+            scale: 2.1,
+            storeys: 6
+          },
+          {
+            id: 'HFL-DMG-01B',
+            name: 'Haflong High-Rise Block B (North-West Central - Fractured)',
+            lng: 93.0184,
+            lat: 25.1715,
+            heading: 50,
+            pitch: 12,
+            roll: -10,
+            scale: 2.25,
+            storeys: 7
+          },
+          {
+            id: 'HFL-DMG-01C',
+            name: 'Haflong High-Rise Block C (Center Tower - Pancake Collapse)',
+            lng: 93.0189,
+            lat: 25.1714,
+            heading: 70,
+            pitch: 16,
+            roll: 12,
+            scale: 2.4,
+            storeys: 8
+          },
+          {
+            id: 'HFL-DMG-01D',
+            name: 'Haflong High-Rise Block D (East Wing - Sheared Facade)',
+            lng: 93.0193,
+            lat: 25.1711,
+            heading: 110,
+            pitch: -18,
+            roll: -14,
+            scale: 2.05,
+            storeys: 6
+          },
+          {
+            id: 'HFL-DMG-01E',
+            name: 'Haflong High-Rise Block E (South-East Slope Slump)',
+            lng: 93.0188,
+            lat: 25.1708,
+            heading: 135,
+            pitch: 26,
+            roll: 6,
+            scale: 1.85,
+            storeys: 5
+          }
+        ];
+
+        damagedComplexBlocks.forEach((blk) => {
+          const pos = Cesium.Cartesian3.fromDegrees(blk.lng, blk.lat, 0);
+          const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+            pos,
+            new Cesium.HeadingPitchRoll(
+              Cesium.Math.toRadians(blk.heading),
+              Cesium.Math.toRadians(blk.pitch),
+              Cesium.Math.toRadians(blk.roll)
+            )
+          );
+
+          const bEnt = viewer.entities.add({
+            name: blk.name,
+            position: pos,
+            orientation: orientation,
+            model: {
+              uri: '/models/building_multistorey.glb',
+              scale: blk.scale,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 150000),
+              shadows: Cesium.ShadowMode.DISABLED
+            },
+            properties: {
+              type: 'DAMAGED_STRUCTURE',
+              id: blk.id,
+              name: blk.name,
+              type_desc: `COLLAPSED HIGH-RISE (${blk.storeys} STOREYS, PANCAKE COLLAPSE)`,
+              height_m: `${blk.storeys * 3.2} m`,
+              hazard_exposure: 'CRITICAL STRUCTURAL FAILURE (DESTROYED)',
+              nearest_hazard: 'Haflong Ghat Escarpment Landslip Zone',
+              nearest_road: 'NH-27 Ghat Corridor (KM 84)',
+              nearest_incident: 'Structural column shear failure & progressive floor collapse'
+            }
+          });
+          damagedEntities.push(bEnt);
+        });
+
+        // 3. Multi-Tier Concrete Pancake Rubble Mounds
+        const rubbleSlabs = [
+          {
+            coords: [93.0181, 25.1707, 93.0180, 25.1714, 93.0191, 25.1715, 93.0194, 25.1709, 93.0187, 25.1706],
+            height: 2.5,
+            color: '#4A5158'
+          },
+          {
+            coords: [93.0183, 25.1709, 93.0182, 25.1713, 93.0190, 25.1713, 93.0192, 25.1710],
+            height: 4.2,
+            color: '#626A72'
+          },
+          {
+            coords: [93.0184, 25.1710, 93.0184, 25.1712, 93.0189, 25.1712, 93.0189, 25.1710],
+            height: 6.5,
+            color: '#7C848C'
+          }
+        ];
+
+        rubbleSlabs.forEach((slab, idx) => {
+          const rSlab = viewer.entities.add({
+            name: `Pancake Rubble Tier ${idx + 1}`,
+            polygon: {
+              hierarchy: Cesium.Cartesian3.fromDegreesArray(slab.coords),
+              extrudedHeight: slab.height,
+              material: Cesium.Color.fromCssColorString(slab.color),
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              extrudedHeightReference: Cesium.HeightReference.RELATIVE_TO_GROUND,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 150000)
+            },
+            properties: {
+              type: 'DAMAGED_STRUCTURE',
+              id: `HFL-RUBBLE-T${idx + 1}`,
+              name: `Pancake Concrete Debris Tier ${idx + 1}`,
+              type_desc: 'COLLAPSED CONCRETE FLOOR SLAB RUIN',
+              height_m: `${slab.height} m rubble mound`
+            }
+          });
+          damagedEntities.push(rSlab);
+        });
+
+        // 4. Structural Failure Nodes (Impact Heat Points: Red = Destroyed, Orange = Major, Yellow = Minor)
+        const failureNodes = [
+          { name: 'Core Column Rupture (Epicenter)', lng: 93.0186, lat: 25.1711, color: '#DC2626', size: 14, outline: '#FFB4B4', outlineW: 3, tier: 'DESTROYED' },
+          { name: 'West Wing Shear Fracture', lng: 93.0182, lat: 25.1712, color: '#DC2626', size: 12, outline: '#FFA0A0', outlineW: 2.5, tier: 'DESTROYED' },
+          { name: 'North-West Foundation Joint', lng: 93.0184, lat: 25.1713, color: '#DC2626', size: 13, outline: '#FFA0A0', outlineW: 2.5, tier: 'DESTROYED' },
+          { name: 'Tower C Cantilever Base', lng: 93.0187, lat: 25.1712, color: '#DC2626', size: 13, outline: '#FFA0A0', outlineW: 2.5, tier: 'DESTROYED' },
+          { name: 'East Wing Shear Wall Displacement', lng: 93.0189, lat: 25.1710, color: '#EA580C', size: 11, outline: '#FFE0B2', outlineW: 2, tier: 'MAJOR DAMAGE' },
+          { name: 'Courtyard Debris Toe Failure', lng: 93.0185, lat: 25.1709, color: '#DC2626', size: 12, outline: '#FFA0A0', outlineW: 2.5, tier: 'DESTROYED' },
+          { name: 'South Slope Slump Fissure', lng: 93.0188, lat: 25.1707, color: '#EA580C', size: 10, outline: '#FFE0B2', outlineW: 2, tier: 'MAJOR DAMAGE' },
+          { name: 'Perimeter Foundation Settling', lng: 93.0180, lat: 25.1708, color: '#EAB308', size: 9, outline: '#FEF08A', outlineW: 2, tier: 'MINOR DAMAGE' }
+        ];
+
+        failureNodes.forEach((node, nIdx) => {
+          const nodePos = Cesium.Cartesian3.fromDegrees(node.lng, node.lat, 2.0);
+          const fEnt = viewer.entities.add({
+            name: `[Node] ${node.name}`,
+            position: nodePos,
+            point: {
+              pixelSize: node.size,
+              color: Cesium.Color.fromCssColorString(node.color),
+              outlineColor: Cesium.Color.fromCssColorString(node.outline),
+              outlineWidth: node.outlineW,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 180000),
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
+            },
+            properties: {
+              type: 'FAILURE_NODE',
+              id: `HFL-NODE-0${nIdx + 1}`,
+              name: node.name,
+              damage_tier: node.tier,
+              type_desc: `STRUCTURAL FAILURE NODE (${node.tier})`,
+              height_m: 'Surface fracture telemetry'
+            }
+          });
+          failureNodeEntities.push(fEnt);
+        });
+
+        // 5. Billboard Status Callout Marker & Leader Line
+        const calloutPos = Cesium.Cartesian3.fromDegrees(hflCentroid.lng, hflCentroid.lat, 48);
+        const leaderLine = viewer.entities.add({
+          name: 'HAFLONG-SEC-01 Leader Line',
+          polyline: {
+            positions: [
+              Cesium.Cartesian3.fromDegrees(hflCentroid.lng, hflCentroid.lat, 0),
+              calloutPos
+            ],
+            width: 2,
+            material: Cesium.Color.fromCssColorString('#DC2626').withAlpha(0.85),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 120000)
+          }
+        });
+        damagedEntities.push(leaderLine);
+
+        const calloutMarker = viewer.entities.add({
+          name: 'HAFLONG-SEC-01 Callout',
+          position: calloutPos,
+          point: {
+            pixelSize: 8,
+            color: Cesium.Color.fromCssColorString('#DC2626'),
+            outlineColor: Cesium.Color.fromCssColorString('#FFFFFF'),
+            outlineWidth: 2,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 120000),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          label: {
+            text: 'HAFLONG-SEC-01: COLLAPSED HIGH-RISE COMPLEX [DESTROYED]',
+            font: 'bold 11px monospace',
+            fillColor: Cesium.Color.fromCssColorString('#FAF8F1'),
+            outlineColor: Cesium.Color.fromCssColorString('#11191D'),
+            outlineWidth: 3,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset: new Cesium.Cartesian2(0, -14),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 120000),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          properties: {
+            type: 'DAMAGED_STRUCTURE',
+            id: 'HAFLONG-SEC-01',
+            name: 'Haflong Ghat Collapsed High-Rise Complex'
+          }
+        });
+        damagedEntities.push(calloutMarker);
+
+        // 6. Inspection Vector Beam (Cyan / Electric Blue)
+        const rayEnt = viewer.entities.add({
+          name: 'Haflong Orbital Inspection Ray',
+          polyline: {
+            positions: [
+              Cesium.Cartesian3.fromDegrees(93.0140, 25.1660, 480),
+              Cesium.Cartesian3.fromDegrees(hflCentroid.lng, hflCentroid.lat, 8)
+            ],
+            width: 2.8,
+            material: new Cesium.PolylineGlowMaterialProperty({
+              glowPower: 0.25,
+              color: Cesium.Color.fromCssColorString('#00E5FF')
+            }),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 250000)
+          }
+        });
+        rayEntities.push(rayEnt);
+
+        // 7. Tactical Status Pins on Nearby Structures (Green / Orange)
+        const nearbyPins = [
+          { name: 'Haflong Upper Ridge Complex', lng: 93.0240, lat: 25.1780, color: '#167F78', label: 'HFL-08: INTACT' },
+          { name: 'Haflong Town Civic Center', lng: 93.0225, lat: 25.1750, color: '#EA580C', label: 'HFL-12: MAJOR DAMAGE' },
+          { name: 'Haflong Civil Hospital Annex', lng: 93.0238, lat: 25.1764, color: '#167F78', label: 'HFL-14: OPERATIONAL' }
+        ];
+
+        nearbyPins.forEach((pin) => {
+          const pinPos = Cesium.Cartesian3.fromDegrees(pin.lng, pin.lat, 35);
+          const pEnt = viewer.entities.add({
+            name: pin.name,
+            position: pinPos,
+            point: {
+              pixelSize: 7,
+              color: Cesium.Color.fromCssColorString(pin.color),
+              outlineColor: Cesium.Color.fromCssColorString('#FFFFFF'),
+              outlineWidth: 1.5,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 100000),
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
+            },
+            label: {
+              text: pin.label,
+              font: '10px monospace',
+              fillColor: Cesium.Color.fromCssColorString(pin.color),
+              outlineColor: Cesium.Color.fromCssColorString('#11191D'),
+              outlineWidth: 2.5,
+              style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+              pixelOffset: new Cesium.Cartesian2(0, -12),
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 90000),
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
+            }
+          });
+          damagedEntities.push(pEnt);
+        });
+      } else if (isSikkim) {
+        // --- SIKKIM / CHUNGTHANG BASIN (TEESTA-III DAM CORRIDOR) DISASTER ASSET INJECTION ---
+        const ctgCentroid = { lng: 88.65060, lat: 27.59814 };
+
+        // 0. Smooth Elliptical Debris Footprint with Radial Gradient (Natural Himalayan Mountain Blending)
+        const createDebrisRadialHalo = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            const gradient = ctx.createRadialGradient(128, 128, 10, 128, 128, 124);
+            gradient.addColorStop(0, 'rgba(220, 38, 38, 0.28)');
+            gradient.addColorStop(0.35, 'rgba(180, 50, 40, 0.18)');
+            gradient.addColorStop(0.7, 'rgba(120, 40, 30, 0.08)');
+            gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(128, 128, 124, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          return canvas;
+        };
+
+        const ellipticalDebrisDecal = viewer.entities.add({
+          id: 'SK-CTG-BLD-01-DEBRIS-HALO',
+          name: 'SK-CTG-BLD-01 Debris Scour Halo',
+          position: Cesium.Cartesian3.fromDegrees(ctgCentroid.lng, ctgCentroid.lat, 0),
+          ellipse: {
+            semiMajorAxis: 54.0,
+            semiMinorAxis: 42.0,
+            rotation: Cesium.Math.toRadians(35),
+            material: new Cesium.ImageMaterialProperty({
+              image: createDebrisRadialHalo(),
+              transparent: true
+            }),
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            classificationType: Cesium.ClassificationType.TERRAIN
+          },
+          properties: {
+            type: 'DAMAGED_STRUCTURE',
+            id: 'SK-CTG-BLD-01',
+            name: 'Debris Scour Envelope'
+          }
+        });
+        damagedEntities.push(ellipticalDebrisDecal);
+
+        // 1. Foundation Hazard Perimeter Polygon (Tier 1: Destroyed - Glowing Crimson Boundary)
+        const ctgHazardPoly = viewer.entities.add({
+          name: 'SK-CTG-BLD-01 Hazard Perimeter',
+          polygon: {
+            hierarchy: Cesium.Cartesian3.fromDegreesArray([
+              88.65010, 27.59770,
+              88.65010, 27.59860,
+              88.65110, 27.59860,
+              88.65110, 27.59770,
+              88.65010, 27.59770
+            ]),
+            material: Cesium.Color.fromCssColorString('rgba(220, 38, 38, 0.25)'),
+            outline: true,
+            outlineColor: Cesium.Color.fromCssColorString('#DC2626').withAlpha(0.95),
+            outlineWidth: 2.0,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 180000)
+          },
+          properties: {
+            type: 'DAMAGED_STRUCTURE',
+            id: 'SK-CTG-BLD-01',
+            name: 'Chungthang Teesta-III Basin Hazard Footprint',
+            type_desc: 'GLOF SCOUR & FLUID COLLAPSE PERIMETER'
+          }
+        });
+        damagedEntities.push(ctgHazardPoly);
+
+        // 2. Primary 3D Photogrammetric Collapsed Model Mounted Directly on Map Terrain
+        const collapsedModelEntity = viewer.entities.add({
+          id: 'SK-CTG-BLD-01-3D-COLLAPSED',
+          name: 'SK-CTG-BLD-01: DESTROYED',
+          position: Cesium.Cartesian3.fromDegrees(88.65060, 27.59814),
+          model: {
+            uri: '/models/collapsed_building.glb',
+            scale: 1.4,
+            minimumPixelSize: 128,
+            maximumScale: 200,
+            heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 150000),
+            shadows: Cesium.ShadowMode.DISABLED
+          },
+          properties: {
+            type: 'DAMAGED_STRUCTURE',
+            id: 'SK-CTG-BLD-01',
+            name: 'SK-CTG-BLD-01: DESTROYED',
+            damage_tier: 'DESTROYED',
+            confidence: 94,
+            change_score: 91.2,
+            type_desc: 'PHOTOGRAMMETRIC 3D COLLAPSED HIGH-RISE (DESTROYED)',
+            height_m: '22.4 m',
+            hazard_exposure: 'CRITICAL STRUCTURAL FAILURE (DESTROYED)',
+            nearest_hazard: 'South Lhonak GLOF Hydrodynamic Surge Corridor',
+            nearest_road: 'North Sikkim Highway (Chungthang Axis)',
+            nearest_incident: 'Dam crest breach wave & riverbank toe hydraulic collapse'
+          }
+        });
+        damagedEntities.push(collapsedModelEntity);
+
+        // 3. Realistic Adjacent Structures Matching Surrounding Field Footprints
+        const ctgDamagedBlocks = [
+          // Left riverside structure
+          {
+            id: 'SK-CTG-BLD-02',
+            name: 'Lachen Chu Approach Shophouses',
+            lng: 88.65020,
+            lat: 27.59830,
+            heading: 45,
+            scale: 1.6,
+            storeys: 4,
+            tier: 'DESTROYED',
+            confidence: 91,
+            changeScore: 88.5,
+            model: '/models/building_multistorey.glb'
+          },
+          // Major Damage Structure (Hospital Annex)
+          {
+            id: 'SK-CTG-BLD-03',
+            name: 'SK-CTG-BLD-03 Singtam Hospital Annex (Major Damage)',
+            lng: 88.65150,
+            lat: 27.59780,
+            heading: 45,
+            scale: 1.85,
+            storeys: 5,
+            tier: 'MAJOR_DAMAGE',
+            confidence: 86,
+            changeScore: 74.0,
+            model: '/models/building_multistorey.glb'
+          },
+          // Minor Damage Structure (Hillside Residence)
+          {
+            id: 'SK-CTG-BLD-04',
+            name: 'SK-IN6-BLD-03 Singtam Hillside Residence',
+            lng: 88.65190,
+            lat: 27.59720,
+            heading: 30,
+            scale: 1.8,
+            storeys: 3,
+            tier: 'MAJOR_DAMAGE',
+            confidence: 83,
+            changeScore: 69.5,
+            model: '/models/house_himalayan_terracotta.glb'
+          },
+          // Intact Structure (Upper Civic Center)
+          {
+            id: 'SK-CTG-BLD-09',
+            name: 'Singtam Upper Civic Center (Intact)',
+            lng: 88.65240,
+            lat: 27.59790,
+            heading: 25,
+            scale: 1.85,
+            storeys: 4,
+            tier: 'NO_DAMAGE',
+            confidence: 98,
+            changeScore: 4.2,
+            model: '/models/building_multistorey.glb'
+          }
+        ];
+
+        ctgDamagedBlocks.forEach((blk) => {
+          const pos = Cesium.Cartesian3.fromDegrees(blk.lng, blk.lat, 0);
+          const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+            pos,
+            new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(blk.heading), 0, 0)
+          );
+
+          const isCrit = blk.tier === 'DESTROYED';
+          const bEnt = viewer.entities.add({
+            id: blk.id,
+            name: blk.name,
+            position: pos,
+            orientation: orientation,
+            model: {
+              uri: blk.model,
+              scale: blk.scale,
+              minimumPixelSize: 64,
+              maximumScale: 200,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 150000),
+              shadows: Cesium.ShadowMode.DISABLED
+            },
+            properties: {
+              type: 'DAMAGED_STRUCTURE',
+              id: blk.id,
+              name: blk.name,
+              damage_tier: blk.tier,
+              confidence: blk.confidence,
+              change_score: blk.changeScore,
+              type_desc: `${blk.tier === 'DESTROYED' ? 'COLLAPSED' : 'DAMAGED'} STRUCTURE (${blk.storeys} STOREYS, ${blk.tier})`,
+              height_m: `${blk.storeys * 3.2} m`,
+              hazard_exposure: isCrit ? 'CRITICAL STRUCTURAL FAILURE (DESTROYED)' : (blk.tier === 'NO_DAMAGE' ? 'INTACT BASELINE' : 'HIGH DAMAGE EXPOSURE (MAJOR)'),
+              nearest_hazard: 'South Lhonak GLOF Hydrodynamic Surge Corridor',
+              nearest_road: 'North Sikkim Highway (Chungthang Axis)',
+              nearest_incident: 'Dam crest breach wave & riverbank toe hydraulic collapse'
+            }
+          });
+          damagedEntities.push(bEnt);
+        });
+
+        // 3. Thematic Bounding Polygons Matching Reference Image
+        const thematicDamageFootprints = [
+          // Orange polygon under hospital annex
+          {
+            id: 'POLY-CTG-02',
+            coords: [88.6512, 27.5974, 88.6511, 27.5982, 88.6521, 27.5983, 88.6522, 27.5975],
+            color: '#EA580C',
+            alpha: 0.28,
+            name: 'Hospital Zone: Major Damage'
+          },
+          // Yellow polygon on lower right
+          {
+            id: 'POLY-CTG-03',
+            coords: [88.6528, 27.5962, 88.6527, 27.5970, 88.6538, 27.5971, 88.6539, 27.5963],
+            color: '#EAB308',
+            alpha: 0.26,
+            name: 'Agricultural Slope: Minor Inundation'
+          }
+        ];
+
+        thematicDamageFootprints.forEach((poly) => {
+          const pEnt = viewer.entities.add({
+            name: poly.name,
+            polygon: {
+              hierarchy: Cesium.Cartesian3.fromDegreesArray(poly.coords),
+              material: Cesium.Color.fromCssColorString(poly.color).withAlpha(poly.alpha),
+              outline: true,
+              outlineColor: Cesium.Color.fromCssColorString(poly.color).withAlpha(0.92),
+              outlineWidth: 2.2,
+              heightReference: Cesium.HeightReference.CLAMP_TO_GROUND,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 160000)
+            },
+            properties: {
+              type: 'DAMAGED_STRUCTURE',
+              id: poly.id,
+              name: poly.name
+            }
+          });
+          damagedEntities.push(pEnt);
+        });
+
+        // 4. Pulsating Anchor Beacon Node at Ground Zero Centroid
+        const beaconEnt = viewer.entities.add({
+          name: 'SK-CTG-BLD-01 Ground Beacon Node',
+          position: Cesium.Cartesian3.fromDegrees(ctgCentroid.lng, ctgCentroid.lat, 0),
+          point: {
+            pixelSize: 14,
+            color: Cesium.Color.fromCssColorString('#DC2626'),
+            outlineColor: Cesium.Color.fromCssColorString('#FFA0A0'),
+            outlineWidth: 3,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 180000),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          properties: {
+            type: 'FAILURE_NODE',
+            id: 'SK-CTG-BEACON-01',
+            name: 'SK-CTG-BLD-01 Ground Zero Anchor',
+            damage_tier: 'DESTROYED'
+          }
+        });
+        failureNodeEntities.push(beaconEnt);
+
+        // 5. Elevated HUD Billboard Callout (25m Above Terrain Peak with Dashed Red Leader Line)
+        const ctgCalloutPos = Cesium.Cartesian3.fromDegrees(ctgCentroid.lng, ctgCentroid.lat, 25);
+        const ctgLeader = viewer.entities.add({
+          name: 'SK-CTG-BLD-01 Leader Line',
+          polyline: {
+            positions: [
+              Cesium.Cartesian3.fromDegrees(ctgCentroid.lng, ctgCentroid.lat, 0),
+              ctgCalloutPos
+            ],
+            width: 2,
+            material: new Cesium.PolylineDashMaterialProperty({
+              color: Cesium.Color.fromCssColorString('#DC2626'),
+              dashLength: 10
+            }),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 140000)
+          }
+        });
+        damagedEntities.push(ctgLeader);
+
+        const ctgCallout = viewer.entities.add({
+          name: 'SK-CTG-BLD-01 Callout',
+          position: ctgCalloutPos,
+          point: {
+            pixelSize: 8,
+            color: Cesium.Color.fromCssColorString('#DC2626'),
+            outlineColor: Cesium.Color.fromCssColorString('#FFFFFF'),
+            outlineWidth: 2,
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 140000),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          label: {
+            text: 'SK-CTG-BLD-01: DESTROYED (Confidence: 94% | Change: 91.2)\nTEESTA-III FLUID COLLAPSE & SCOUR',
+            font: 'bold 11px monospace',
+            fillColor: Cesium.Color.fromCssColorString('#FAF8F1'),
+            outlineColor: Cesium.Color.fromCssColorString('#11191D'),
+            outlineWidth: 3,
+            style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+            pixelOffset: new Cesium.Cartesian2(0, -18),
+            distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 140000),
+            disableDepthTestDistance: Number.POSITIVE_INFINITY
+          },
+          properties: {
+            type: 'DAMAGED_STRUCTURE',
+            id: 'SK-CTG-BLD-01',
+            name: 'Teesta-III Riverbank Residential & Commercial Complex',
+            damage_tier: 'DESTROYED',
+            confidence: 94,
+            change_score: 91.2
+          }
+        });
+        damagedEntities.push(ctgCallout);
+
+        // 6. Tactical Status Markers on Adjacent Buildings
+        const ctgNearbyPins = [
+          { name: 'SK-CTG-BLD-03: Singtam', lng: 88.65150, lat: 27.59780, color: '#EA580C', label: 'SK-CTG-BLD-03: Singtam' },
+          { name: 'SK-IN6-BLD-03 Singtam', lng: 88.65190, lat: 27.59720, color: '#EA580C', label: 'SK-IN6-BLD-03 Singtam' },
+          { name: 'Singtam Upper Civic', lng: 88.65240, lat: 27.59790, color: '#4F9D69', label: 'Singtam' },
+          { name: 'Slope Inundation Sector', lng: 88.65330, lat: 27.59665, color: '#EAB308', label: '' }
+        ];
+
+        ctgNearbyPins.forEach((pin) => {
+          const pinPos = Cesium.Cartesian3.fromDegrees(pin.lng, pin.lat, 22);
+          const pEnt = viewer.entities.add({
+            name: pin.name,
+            position: pinPos,
+            point: {
+              pixelSize: 6,
+              color: Cesium.Color.fromCssColorString(pin.color),
+              outlineColor: Cesium.Color.fromCssColorString('#FFFFFF'),
+              outlineWidth: 1.5,
+              distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 100000),
+              disableDepthTestDistance: Number.POSITIVE_INFINITY
+            },
+            ...(pin.label ? {
+              label: {
+                text: pin.label,
+                font: '10px monospace',
+                fillColor: Cesium.Color.fromCssColorString(pin.color),
+                outlineColor: Cesium.Color.fromCssColorString('#11191D'),
+                outlineWidth: 2.5,
+                style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+                pixelOffset: new Cesium.Cartesian2(0, -12),
+                distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 90000),
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
+              }
+            } : {})
+          });
+          damagedEntities.push(pEnt);
+        });
+      }
+
+      entitiesRef.current.damagedStructures = damagedEntities;
+      entitiesRef.current.failureNodes = failureNodeEntities;
+      entitiesRef.current.inspectionRays = rayEntities;
 
       // E. BRIDGES & CROSSINGS (3D Model + Navigational POI Marker)
       const bridgeEntities: Cesium.Entity[] = [];
@@ -1279,9 +2022,11 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
           osmBuildingsTilesetRef.current.show = nextVal;
         }
         entitiesRef.current.buildings.forEach((e) => (e.show = nextVal));
+        entitiesRef.current.damagedStructures.forEach((e) => (e.show = nextVal));
         entitiesRef.current.trees.forEach((e) => (e.show = nextVal));
       } else if (layerKey === '04_infrastructure') {
         entitiesRef.current.infrastructure.forEach((e) => (e.show = nextVal));
+        entitiesRef.current.damagedStructures.forEach((e) => (e.show = nextVal));
       } else if (layerKey === '05_bridges') {
         entitiesRef.current.bridges.forEach((e) => (e.show = nextVal));
       } else if (layerKey === '06_roads') {
@@ -1289,8 +2034,13 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
         entitiesRef.current.railway.forEach((e) => (e.show = nextVal));
       } else if (layerKey === '07_rivers') {
         entitiesRef.current.rivers.forEach((e) => (e.show = nextVal));
+      } else if (layerKey === '08_hazard_polygons') {
+        entitiesRef.current.hazardPolygons.forEach((e) => (e.show = nextVal));
+        entitiesRef.current.failureNodes.forEach((e) => (e.show = nextVal));
+        entitiesRef.current.inspectionRays.forEach((e) => (e.show = nextVal));
       } else if (layerKey === '10_incidents') {
         entitiesRef.current.incidents.forEach((e) => (e.show = nextVal));
+        entitiesRef.current.failureNodes.forEach((e) => (e.show = nextVal));
       } else if (layerKey === '17_evacuation_routes') {
         entitiesRef.current.responseRoutes.forEach((e) => (e.show = nextVal));
       }
@@ -1353,8 +2103,8 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
           });
         } else {
           viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(88.5365, 27.3920, 1150),
-            orientation: { heading: Cesium.Math.toRadians(15), pitch: Cesium.Math.toRadians(-26), roll: 0.0 },
+            destination: Cesium.Cartesian3.fromDegrees(88.65060, 27.59400, 1450),
+            orientation: { heading: Cesium.Math.toRadians(15), pitch: Cesium.Math.toRadians(-28), roll: 0.0 },
             duration: 1.2
           });
         }
@@ -1368,8 +2118,8 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
           });
         } else {
           viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(88.5365, 27.3960, 850),
-            orientation: { heading: Cesium.Math.toRadians(35), pitch: Cesium.Math.toRadians(-22), roll: 0.0 },
+            destination: Cesium.Cartesian3.fromDegrees(88.65060, 27.59600, 950),
+            orientation: { heading: Cesium.Math.toRadians(25), pitch: Cesium.Math.toRadians(-22), roll: 0.0 },
             duration: 1.0
           });
         }
@@ -1415,12 +2165,12 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
   };
 
   const sikkimLocations = [
-    { name: 'Dikchu – Singtam Corridor (AOI)', lat: 27.3920, lng: 88.5365 },
-    { name: 'Milestone 14 Hazard Toe Zone', lat: 27.4012, lng: 88.5335 },
-    { name: 'Dikchu Bailey Bridge & Basti', lat: 27.3955, lng: 88.5382 },
-    { name: 'Singtam Hydro Substation', lat: 27.2360, lng: 88.4970 },
-    { name: 'Rangpo Border Checkpost', lat: 27.1760, lng: 88.5320 },
-    { name: 'Gangtok Urban Ridge', lat: 27.3314, lng: 88.6138 }
+    { name: 'Chungthang Basin (Ground Zero — Teesta-III Dam)', lat: 27.59814, lng: 88.65060 },
+    { name: 'Teesta-III Dam Breach & Spillway Gorge', lat: 27.59950, lng: 88.65180 },
+    { name: 'Lachen–Lachung River Confluence Scour', lat: 27.59750, lng: 88.64980 },
+    { name: 'Chungthang Sub-Divisional Hospital', lat: 27.59710, lng: 88.65220 },
+    { name: 'Mangan District Headquarters', lat: 27.5100, lng: 88.5200 },
+    { name: 'Dikchu – Singtam Downstream Corridor', lat: 27.3920, lng: 88.5365 }
   ];
 
   const assamLocations = [
@@ -1452,7 +2202,7 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
               india: 'India',
               ner: 'NER',
               state: selectedRegion === 'ASSAM' ? 'Assam' : 'Sikkim',
-              aoi: selectedRegion === 'ASSAM' ? 'Haflong Sector' : 'Dikchu Sector',
+              aoi: selectedRegion === 'ASSAM' ? 'Haflong Sector' : 'Chungthang Basin',
               slope: '3D Slope'
             };
             const isActive = activePreset === p;
@@ -1502,7 +2252,7 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
             title="Focus camera on Localized 3D Disaster Digital Twin"
           >
             <Building2 className="w-4 h-4 text-[#FAF8F1]" />
-            <span>3D DISASTER DIGITAL TWIN ({selectedRegion === 'ASSAM' ? 'HAFLONG' : 'DIKCHU'})</span>
+            <span>3D DISASTER DIGITAL TWIN ({selectedRegion === 'ASSAM' ? 'HAFLONG' : 'CHUNGTHANG'})</span>
           </button>
 
           {/* Location Dropdown */}
@@ -1538,7 +2288,7 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
 
         {/* Operational Status Badges (Verified Provider States) */}
         <div className="flex flex-wrap items-center gap-2 text-[10px] font-mono bg-[#FAF8F1]/90 border border-[#D7DEDC] px-2.5 py-1 rounded-lg shadow-subtle backdrop-blur-md text-[#667579]">
-          <span className="font-bold text-[#172126]">EPOCH 3D DIGITAL TWIN</span>
+          <span className="font-bold text-[#172126]">SATGUARD 3D DIGITAL TWIN</span>
           <span>•</span>
           <span className="text-[#167F78] font-bold">
             ✓ 3D GLB MODELS ACTIVE
@@ -1834,57 +2584,141 @@ export const SyntheticEarthViewer: React.FC<SyntheticEarthViewerProps> = ({
         />
       )}
 
-      {/* 7. STRUCTURE GIS INSPECTOR MODAL */}
+      {/* 7. STRUCTURE DETAILS ANALYTICAL INSPECTOR (MATCHING REFERENCE IMAGE 2) */}
       {inspectedBuilding && (
-        <div className="absolute bottom-12 left-3 w-84 bg-[#FAF8F1]/98 border border-[#D7DEDC] rounded-2xl p-3.5 shadow-panel backdrop-blur-md z-30 font-sans text-xs space-y-2 pointer-events-auto">
-          <div className="flex items-center justify-between border-b border-[#D7DEDC] pb-2">
-            <div className="flex items-center space-x-1.5">
-              <Building className="w-4 h-4 text-[#167F78]" />
-              <span className="font-bold text-[#172126] text-xs">Structure GIS Inspector</span>
+        <div className="absolute bottom-12 left-3 w-[330px] bg-[#11191D]/95 border border-[#334155] rounded-2xl p-3.5 shadow-2xl backdrop-blur-md z-30 font-sans text-xs space-y-2.5 pointer-events-auto text-[#FAF8F1] animate-in fade-in slide-in-from-bottom-2 duration-200">
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-[#334155] pb-2">
+            <div className="flex items-center space-x-2">
+              <Building2 className="w-4 h-4 text-[#167F78]" />
+              <span className="font-bold text-sm text-[#FAF8F1]">Structure Details</span>
             </div>
             <button
               onClick={() => setInspectedBuilding(null)}
-              className="text-[#667579] hover:text-[#172126] p-0.5 cursor-pointer rounded-md hover:bg-[#E6EDEB]"
+              className="text-[#94A3B8] hover:text-[#FAF8F1] p-1 cursor-pointer rounded-lg hover:bg-[#1E293B] transition-colors"
+              title="Close Inspector"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="space-y-1.5 text-[11px]">
-            <div className="bg-[#E6EDEB] p-2 rounded-xl">
-              <div className="text-[10px] font-mono text-[#667579] uppercase font-bold">Identified Structure</div>
-              <div className="font-bold text-[#172126]">{inspectedBuilding.name}</div>
-              <div className="text-[10px] font-mono text-[#167F78]">{inspectedBuilding.id}</div>
+          {/* ID & Damage Class Badge */}
+          <div className="space-y-1">
+            <div className="text-xs font-mono text-[#94A3B8]">
+              ID: <strong className="text-[#FAF8F1] font-bold">{inspectedBuilding.id}</strong>
             </div>
 
-            <div className="grid grid-cols-2 gap-1.5">
-              <div className="bg-[#E6EDEB]/60 p-1.5 rounded-lg">
-                <span className="text-[10px] text-[#667579] block">Classification</span>
-                <strong className="text-[#172126] font-mono">{inspectedBuilding.type}</strong>
-              </div>
-              <div className="bg-[#E6EDEB]/60 p-1.5 rounded-lg">
-                <span className="text-[10px] text-[#667579] block">Elevation / Height</span>
-                <strong className="text-[#172126] font-mono">{inspectedBuilding.height_m}</strong>
-              </div>
+            <div className="flex items-center space-x-1.5">
+              <span className="w-2.5 h-2.5 rounded-sm bg-[#DC2626]" />
+              <span className="font-bold text-xs text-[#DC2626] uppercase">
+                {inspectedBuilding.damage_class === 'DESTROYED' ? 'Destroyed' : (inspectedBuilding.damage_class || 'Destroyed')}
+              </span>
             </div>
 
-            <div className="bg-[#E6EDEB]/60 p-1.5 rounded-lg flex justify-between">
-              <span className="text-[10px] text-[#667579]">Coordinates</span>
-              <strong className="text-[#172126] font-mono">{inspectedBuilding.lat}° N, {inspectedBuilding.lng}° E</strong>
-            </div>
-
-            <div className="bg-[#E6EDEB]/60 p-1.5 rounded-lg space-y-0.5">
-              <div className="flex justify-between">
-                <span className="text-[10px] text-[#667579]">Hazard Proximity</span>
-                <strong className="text-[#DC2626] font-semibold">{inspectedBuilding.hazard_exposure}</strong>
+            {/* Metrics Grid */}
+            <div className="space-y-0.5 pt-1 text-[11px] font-mono">
+              <div className="flex justify-between text-[#94A3B8]">
+                <span>Confidence</span>
+                <strong className="text-[#FAF8F1]">{inspectedBuilding.confidence || 91}%</strong>
               </div>
-              <div className="text-[10px] text-[#667579]">{inspectedBuilding.nearest_hazard}</div>
+              <div className="flex justify-between text-[#94A3B8]">
+                <span>Change Score</span>
+                <strong className="text-[#FAF8F1]">{inspectedBuilding.change_score || 86.4}</strong>
+              </div>
+              <div className="flex justify-between text-[#94A3B8]">
+                <span>Footprint Area</span>
+                <strong className="text-[#FAF8F1]">{inspectedBuilding.footprint_area_m2 || 432} m²</strong>
+              </div>
             </div>
           </div>
 
-          <div className="pt-1.5 border-t border-[#D7DEDC] flex items-center justify-between text-[10px] font-mono text-[#667579]">
-            <span>{inspectedBuilding.is_osm ? '• CESIUM OSM 3D TILES' : '• 3D GLB DIGITAL TWIN MODEL'}</span>
-            <span className="text-[#167F78] font-bold">DIGITAL TWIN NODE</span>
+          {/* Before & After Evidence Thumbnails */}
+          <div className="grid grid-cols-2 gap-2 pt-0.5">
+            <div className="space-y-1">
+              <div className="w-full h-18 bg-[#1E293B] rounded-lg overflow-hidden border border-[#334155] relative group">
+                <img
+                  src={inspectedBuilding.before_image || '/assets/evidence_before.jpg'}
+                  alt="Pre-Disaster Baseline Evidence"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/destroyed_ortho.png'; }}
+                />
+                <div className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-black/70 text-[9px] font-mono text-[#94A3B8]">
+                  Before
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="w-full h-18 bg-[#1E293B] rounded-lg overflow-hidden border border-[#334155] relative group">
+                <img
+                  src={inspectedBuilding.after_image || '/assets/evidence_after.jpg'}
+                  alt="Post-Disaster Debris Evidence"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/collapsed_building_texture.jpg'; }}
+                />
+                <div className="absolute bottom-1 left-1 px-1.5 py-0.2 rounded bg-black/70 text-[9px] font-mono text-[#DC2626] font-bold">
+                  After
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Verification Status Banner */}
+          <div className="flex items-center justify-between bg-[#1E293B]/80 px-2.5 py-1.5 rounded-lg text-[11px] font-mono">
+            <span className="text-[#94A3B8]">Verification:</span>
+            <span className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+              inspectedBuilding.verification_status === 'VERIFIED'
+                ? 'bg-[#167F78]/20 text-[#167F78] border border-[#167F78]/40'
+                : 'bg-[#D97706]/20 text-[#D97706] border border-[#D97706]/40'
+            }`}>
+              {inspectedBuilding.verification_status || 'UNVERIFIED'}
+            </span>
+          </div>
+
+          {/* Verification Action Buttons */}
+          <div className="grid grid-cols-3 gap-1.5 pt-0.5">
+            <button
+              onClick={() => {
+                setInspectedBuilding(prev => prev ? { ...prev, verification_status: 'VERIFIED' } : null);
+                if (onVerifyStructure) {
+                  onVerifyStructure({
+                    sceneId: 'sikkim-nh10-dikchu-sector',
+                    structureId: inspectedBuilding.id,
+                    action: 'VERIFY',
+                    assessorId: 'NDRF_FIELD_OFFICER'
+                  });
+                }
+              }}
+              className="px-2 py-1.5 rounded-lg bg-[#167F78] hover:bg-[#126862] text-white font-bold text-[10px] transition-all cursor-pointer flex items-center justify-center space-x-1"
+            >
+              <span>✓ Verify</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setInspectedBuilding(prev => prev ? { ...prev, verification_status: 'NEEDS_REVIEW' } : null);
+              }}
+              className="px-2 py-1.5 rounded-lg bg-[#334155] hover:bg-[#475569] text-[#FAF8F1] font-semibold text-[10px] transition-all cursor-pointer flex items-center justify-center"
+            >
+              <span>Needs Review</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setInspectedBuilding(prev => prev ? { ...prev, verification_status: 'REJECTED' } : null);
+              }}
+              className="px-2 py-1.5 rounded-lg bg-[#DC2626] hover:bg-[#B91C1C] text-white font-bold text-[10px] transition-all cursor-pointer flex items-center justify-center"
+            >
+              <span>Reject</span>
+            </button>
+          </div>
+
+          {/* Modify Class Link */}
+          <div className="pt-0.5 text-right">
+            <button className="text-[10px] text-[#94A3B8] hover:text-[#167F78] transition-colors cursor-pointer font-medium inline-flex items-center space-x-0.5">
+              <span>Modify Class</span>
+              <span>&gt;</span>
+            </button>
           </div>
         </div>
       )}

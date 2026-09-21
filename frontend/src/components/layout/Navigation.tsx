@@ -12,7 +12,9 @@ import {
   Zap,
   Database,
   GitMerge,
-  Smartphone
+  Smartphone,
+  ShieldAlert,
+  Layers
 } from 'lucide-react';
 import { ViewType } from '../../types';
 
@@ -35,7 +37,15 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, onSelectVie
     {
       name: 'OVERVIEW',
       items: [
-        { id: 'command_center', label: 'Command Center', icon: LayoutDashboard }
+        { id: 'command_center', label: 'Command Center', icon: LayoutDashboard },
+        { id: 'satellite_view', label: 'Satellite Dashboard', icon: Satellite }
+      ]
+    },
+    {
+      name: 'ASSESSMENT',
+      items: [
+        { id: 'damage_assessment', label: 'Damage Engine', icon: ShieldAlert },
+        { id: 'change_detection', label: 'Change Detection', icon: Layers }
       ]
     },
     {

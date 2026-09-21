@@ -257,7 +257,7 @@ export const EpochFieldModeView: React.FC<EpochFieldModeViewProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full bg-[#167F78] animate-pulse" />
-              <span className="font-bold text-sm tracking-wider uppercase">EPOCH FIELD APP</span>
+              <span className="font-bold text-sm tracking-wider uppercase">SATGUARD FIELD APP</span>
               <span className="px-1.5 py-0.5 rounded bg-[#FAF8F1]/10 text-[10px] font-mono text-[#C58A24]">
                 PWA FIELD MODE
               </span>
@@ -273,7 +273,7 @@ export const EpochFieldModeView: React.FC<EpochFieldModeViewProps> = ({
                 <button
                   onClick={handleInstallClick}
                   className="flex items-center text-[10px] bg-[#C58A24] hover:bg-[#b07b20] text-[#172126] font-bold px-2 py-0.5 rounded-full transition-colors cursor-pointer shadow-sm"
-                  title="Install EPOCH Field PWA"
+                  title="Install SatGuard Field PWA"
                 >
                   <Download className="w-3 h-3 mr-1" /> INSTALL PWA
                 </button>
@@ -638,20 +638,20 @@ export const EpochFieldModeView: React.FC<EpochFieldModeViewProps> = ({
             <div className="flex items-center space-x-2 border-b border-[#D7DEDC] pb-2">
               <Smartphone className="w-5 h-5 text-[#167F78]" />
               <h3 className="font-bold text-sm text-[#172126]">
-                INSTALL EPOCH FIELD PWA
+                INSTALL SATGUARD FIELD PWA
               </h3>
             </div>
 
             <div className="text-xs text-[#667579] space-y-2.5">
               <p>
-                To install EPOCH Field on your mobile device for offline field operation:
+                To install SatGuard Field on your mobile device for offline field operation:
               </p>
               <div className="bg-[#E6EDEB] p-3 rounded-xl space-y-1.5 font-medium text-[#172126]">
                 <div><strong>iOS / Safari:</strong> Tap the <span className="font-bold text-[#167F78]">Share</span> icon at the bottom, then choose <span className="font-bold text-[#167F78]">Add to Home Screen</span>.</div>
                 <div><strong>Android / Chrome:</strong> Tap the browser menu (<span className="font-bold">⋮</span>) and select <span className="font-bold text-[#167F78]">Install App</span> or <span className="font-bold text-[#167F78]">Add to Home screen</span>.</div>
               </div>
               <p className="text-[11px]">
-                Once installed, EPOCH Field will launch full-screen and continue to record incidents, GPS, and media even when cellular connectivity drops.
+                Once installed, SatGuard Field will launch full-screen and continue to record incidents, GPS, and media even when cellular connectivity drops.
               </p>
             </div>
 

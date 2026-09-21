@@ -1,0 +1,1751 @@
+{
+  "sikkim-singtam-dikchu": {
+    "eventId": "sikkim-teesta-flood-2026",
+    "sceneId": "sikkim-singtam-dikchu",
+    "mode": "DEMO",
+    "sceneMetadata": {
+      "title": "Singtam-Dikchu River Island & NH-10 Arterial Corridor Damage Assessment",
+      "location": {
+        "name": "Singtam \u2013 Dikchu River Island",
+        "state": "Sikkim",
+        "district": "Gangtok / Pakyong",
+        "lat": 27.2348,
+        "lng": 88.498,
+        "corridor": "National Highway 10 (NH-10)"
+      },
+      "sensor": "Sentinel-2 MSI (10m L2A BOA Reflectance)",
+      "resolution": "10m GSD (Copernicus Sentinel-2)",
+      "acquisitionDates": {
+        "before": "2026-08-28 (Pre-Disaster Baseline)",
+        "after": "2026-09-03 (Post-GLOF Inundation)"
+      },
+      "disclaimer": "SYNTHETIC DEMONSTRATION DATA (Singtam \u2013 Dikchu River Island)",
+      "thresholdConfig": "INITIAL DEMONSTRATION THRESHOLDS"
+    },
+    "changeDetection": {
+      "changeScore": 0.23458958192648544,
+      "changedAreaM2": 137509.2,
+      "changePercentage": 15.92,
+      "noiseFiltered": true,
+      "changeMaskBase64": "",
+      "hotspotCount": 2,
+      "disclaimer": "Deterministic optical difference analysis. Environmental terrain shifts filtered separately."
+    },
+    "structures": [
+      {
+        "structureId": "SK-SNG-BLD-01",
+        "name": "Singtam Lower Riverbank Settlement Pier & Depot",
+        "geometry": {
+          "bbox": [
+            545,
+            265,
+            55,
+            38
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2348,
+        "centerLng": 88.498,
+        "footprintAreaM2": 580.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.2662,
+          "edgeChange": 0.3146,
+          "textureChange": 0.1414,
+          "structuralChange": 0.148,
+          "areaChange": 0.2904,
+          "builtUpChange": 0.008,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.02
+        },
+        "changeScore": 0.2345,
+        "structuralChangeScore": 0.148,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9132,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 14.8% < 18%). High baseline correlation (85.2% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-05",
+        "name": "Singtam River Bridge Approach Complex",
+        "geometry": {
+          "bbox": [
+            570,
+            230,
+            48,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2355,
+        "centerLng": 88.4992,
+        "footprintAreaM2": 420.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.2438,
+          "edgeChange": 0.2867,
+          "textureChange": 0.2953,
+          "structuralChange": 0.2566,
+          "areaChange": 0.2653,
+          "builtUpChange": 0.1841,
+          "disappearanceEvidence": 0.3028,
+          "appearanceEvidence": 0.0061
+        },
+        "changeScore": 0.2569,
+        "structuralChangeScore": 0.2566,
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9534,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "Localized/superficial damage detected (Structural Change: 25.7% >= 18%). Core structural geometry intact with 24% localized spectral shift and perimeter debris encroachment.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-81",
+        "name": "Singtam West Commercial & Residential Block",
+        "geometry": {
+          "bbox": [
+            450,
+            210,
+            50,
+            38
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2362,
+        "centerLng": 88.5005,
+        "footprintAreaM2": 460.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0868,
+          "edgeChange": 0.3057,
+          "textureChange": 0.1226,
+          "structuralChange": 0.1172,
+          "areaChange": 0.1962,
+          "builtUpChange": 0.0447,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.1117
+        },
+        "changeScore": 0.1412,
+        "structuralChangeScore": 0.1172,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9238,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 11.7% < 18%). High baseline correlation (88.3% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-67",
+        "name": "Upper Slope North Residential Facility",
+        "geometry": {
+          "bbox": [
+            535,
+            175,
+            42,
+            32
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.237,
+        "centerLng": 88.5018,
+        "footprintAreaM2": 310.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1196,
+          "edgeChange": 0.3736,
+          "textureChange": 0.0626,
+          "structuralChange": 0.1438,
+          "areaChange": 0.2466,
+          "builtUpChange": 0.0552,
+          "disappearanceEvidence": 0.0319,
+          "appearanceEvidence": 0.0903
+        },
+        "changeScore": 0.1789,
+        "structuralChangeScore": 0.1438,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9085,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 14.4% < 18%). High baseline correlation (85.6% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SHG-BLD-10",
+        "name": "Highway North Transit & Storage Bunkhouse",
+        "geometry": {
+          "bbox": [
+            615,
+            150,
+            42,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2378,
+        "centerLng": 88.503,
+        "footprintAreaM2": 340.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0804,
+          "edgeChange": 0.2872,
+          "textureChange": 0.2584,
+          "structuralChange": 0.1705,
+          "areaChange": 0.1838,
+          "builtUpChange": 0.1324,
+          "disappearanceEvidence": 0.1186,
+          "appearanceEvidence": 0.1531
+        },
+        "changeScore": 0.1533,
+        "structuralChangeScore": 0.1705,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9038,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 17.1% < 18%). High baseline correlation (83.0% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-00",
+        "name": "South Riverbank Agricultural Station",
+        "geometry": {
+          "bbox": [
+            430,
+            315,
+            48,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2385,
+        "centerLng": 88.5042,
+        "footprintAreaM2": 280.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1146,
+          "edgeChange": 0.3624,
+          "textureChange": 0.2082,
+          "structuralChange": 0.1602,
+          "areaChange": 0.2385,
+          "builtUpChange": 0.0755,
+          "disappearanceEvidence": 0.0351,
+          "appearanceEvidence": 0.1362
+        },
+        "changeScore": 0.1801,
+        "structuralChangeScore": 0.1602,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9062,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 16.0% < 18%). High baseline correlation (84.0% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-04",
+        "name": "Lower River Inundation Zone Facility",
+        "geometry": {
+          "bbox": [
+            500,
+            325,
+            48,
+            38
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2392,
+        "centerLng": 88.5055,
+        "footprintAreaM2": 490.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.211,
+          "edgeChange": 0.2073,
+          "textureChange": 0.461,
+          "structuralChange": 0.1402,
+          "areaChange": 0.2092,
+          "builtUpChange": 0.0004,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.001
+        },
+        "changeScore": 0.1855,
+        "structuralChangeScore": 0.1402,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9093,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 14.0% < 18%). High baseline correlation (86.0% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-02",
+        "name": "Central NH-10 Junction Commercial Hub",
+        "geometry": {
+          "bbox": [
+            485,
+            235,
+            52,
+            42
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.24,
+        "centerLng": 88.5068,
+        "footprintAreaM2": 510.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1108,
+          "edgeChange": 0.3768,
+          "textureChange": 0.1765,
+          "structuralChange": 0.1778,
+          "areaChange": 0.2438,
+          "builtUpChange": 0.1049,
+          "disappearanceEvidence": 0.0879,
+          "appearanceEvidence": 0.1305
+        },
+        "changeScore": 0.1874,
+        "structuralChangeScore": 0.1778,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.8984,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 17.8% < 18%). High baseline correlation (82.2% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-03",
+        "name": "Singtam Clinic & Community Depot",
+        "geometry": {
+          "bbox": [
+            430,
+            230,
+            48,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2408,
+        "centerLng": 88.508,
+        "footprintAreaM2": 360.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1041,
+          "edgeChange": 0.3652,
+          "textureChange": 0.1673,
+          "structuralChange": 0.1388,
+          "areaChange": 0.2347,
+          "builtUpChange": 0.0397,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.0993
+        },
+        "changeScore": 0.1685,
+        "structuralChangeScore": 0.1388,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9133,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 13.9% < 18%). High baseline correlation (86.1% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-SNG-BLD-08",
+        "name": "Upper Terrace Residential Cabin",
+        "geometry": {
+          "bbox": [
+            475,
+            155,
+            42,
+            32
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2415,
+        "centerLng": 88.5092,
+        "footprintAreaM2": 290.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0957,
+          "edgeChange": 0.3648,
+          "textureChange": 0.2922,
+          "structuralChange": 0.2073,
+          "areaChange": 0.2303,
+          "builtUpChange": 0.1547,
+          "disappearanceEvidence": 0.1452,
+          "appearanceEvidence": 0.169
+        },
+        "changeScore": 0.1886,
+        "structuralChangeScore": 0.2073,
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9148,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "Localized/superficial damage detected (Structural Change: 20.7% >= 18%). Core structural geometry intact with 10% localized spectral shift and perimeter debris encroachment.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      }
+    ],
+    "statistics": {
+      "totalStructures": 10,
+      "destroyedCount": 0,
+      "majorDamageCount": 0,
+      "minorDamageCount": 2,
+      "noDamageCount": 8,
+      "destroyedPercentage": 0.0,
+      "majorDamagePercentage": 0.0,
+      "minorDamagePercentage": 20.0,
+      "noDamagePercentage": 80.0,
+      "averageConfidence": 0.9145,
+      "verifiedCount": 0,
+      "unverifiedCount": 10,
+      "needsReviewCount": 0,
+      "totalFootprintAreaM2": 4040.0,
+      "damagedFootprintAreaM2": 710.0
+    },
+    "damageMapData": [
+      {
+        "structureId": "SK-SNG-BLD-01",
+        "geometry": {
+          "bbox": [
+            545,
+            265,
+            55,
+            38
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9132
+      },
+      {
+        "structureId": "SK-SNG-BLD-05",
+        "geometry": {
+          "bbox": [
+            570,
+            230,
+            48,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9534
+      },
+      {
+        "structureId": "SK-SNG-BLD-81",
+        "geometry": {
+          "bbox": [
+            450,
+            210,
+            50,
+            38
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9238
+      },
+      {
+        "structureId": "SK-SNG-BLD-67",
+        "geometry": {
+          "bbox": [
+            535,
+            175,
+            42,
+            32
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9085
+      },
+      {
+        "structureId": "SK-SHG-BLD-10",
+        "geometry": {
+          "bbox": [
+            615,
+            150,
+            42,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9038
+      },
+      {
+        "structureId": "SK-SNG-BLD-00",
+        "geometry": {
+          "bbox": [
+            430,
+            315,
+            48,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9062
+      },
+      {
+        "structureId": "SK-SNG-BLD-04",
+        "geometry": {
+          "bbox": [
+            500,
+            325,
+            48,
+            38
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9093
+      },
+      {
+        "structureId": "SK-SNG-BLD-02",
+        "geometry": {
+          "bbox": [
+            485,
+            235,
+            52,
+            42
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.8984
+      },
+      {
+        "structureId": "SK-SNG-BLD-03",
+        "geometry": {
+          "bbox": [
+            430,
+            230,
+            48,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9133
+      },
+      {
+        "structureId": "SK-SNG-BLD-08",
+        "geometry": {
+          "bbox": [
+            475,
+            155,
+            42,
+            32
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9148
+      }
+    ],
+    "processingMetadata": {
+      "engine": "EPOCH Deterministic Damage Assessment Engine v2.0",
+      "version": "2.0.0-DEMO",
+      "processingLatencyMs": 163,
+      "timestamp": "2026-09-20T17:19:50.016308+00:00",
+      "alignmentMethod": "ORB_HOMOGRAPHY_WITH_RIGID_FALLBACK",
+      "registrationLabel": "Approximate Optical Feature Registration",
+      "thresholdStatus": "INITIAL DEMONSTRATION THRESHOLDS"
+    }
+  },
+  "sikkim-chungthang-basin": {
+    "eventId": "sikkim-teesta-flood-2026",
+    "sceneId": "sikkim-chungthang-basin",
+    "mode": "DEMO",
+    "sceneMetadata": {
+      "title": "Chungthang Basin Teesta Stage-III Hydroelectric Corridor Damage Assessment",
+      "location": {
+        "name": "Chungthang Basin Gorge Sector",
+        "state": "Sikkim",
+        "district": "Mangan",
+        "lat": 27.59814,
+        "lng": 88.6506,
+        "corridor": "Teesta Stage-III Axis"
+      },
+      "sensor": "Sentinel-2 MSI (10m L2A BOA Reflectance)",
+      "resolution": "10m GSD (Copernicus Sentinel-2)",
+      "acquisitionDates": {
+        "before": "2026-08-28 (Pre-Disaster Baseline)",
+        "after": "2026-09-03 (Post-GLOF Inundation)"
+      },
+      "disclaimer": "SYNTHETIC DEMONSTRATION DATA (Chungthang Basin Gorge Sector)",
+      "thresholdConfig": "INITIAL DEMONSTRATION THRESHOLDS"
+    },
+    "changeDetection": {
+      "changeScore": 0.17167925563182906,
+      "changedAreaM2": 14486.4,
+      "changePercentage": 1.68,
+      "noiseFiltered": true,
+      "changeMaskBase64": "",
+      "hotspotCount": 0,
+      "disclaimer": "Deterministic optical difference analysis. Environmental terrain shifts filtered separately."
+    },
+    "structures": [
+      {
+        "structureId": "SK-CTG-BLD-01",
+        "name": "Chungthang Stage-III Riverfront Residential Complex",
+        "geometry": {
+          "bbox": [
+            200,
+            260,
+            50,
+            40
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.59814,
+        "centerLng": 88.6506,
+        "footprintAreaM2": 620.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0342,
+          "edgeChange": 0.1298,
+          "textureChange": 0.0119,
+          "structuralChange": 0.0694,
+          "areaChange": 0.082,
+          "builtUpChange": 0.1155,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.2888
+        },
+        "changeScore": 0.0656,
+        "structuralChangeScore": 0.0694,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9465,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 6.9% < 18%). High baseline correlation (93.1% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-02",
+        "name": "Chungthang Teesta Stage-III Powerhouse Control Wing",
+        "geometry": {
+          "bbox": [
+            260,
+            270,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.5985,
+        "centerLng": 88.6512,
+        "footprintAreaM2": 540.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0605,
+          "edgeChange": 0.1536,
+          "textureChange": 0.0544,
+          "structuralChange": 0.091,
+          "areaChange": 0.107,
+          "builtUpChange": 0.1378,
+          "disappearanceEvidence": 0.003,
+          "appearanceEvidence": 0.34
+        },
+        "changeScore": 0.0898,
+        "structuralChangeScore": 0.091,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9384,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 9.1% < 18%). High baseline correlation (90.9% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-03",
+        "name": "Chungthang Primary Healthcare & Emergency Clinic",
+        "geometry": {
+          "bbox": [
+            310,
+            280,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.5991,
+        "centerLng": 88.6519,
+        "footprintAreaM2": 450.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0847,
+          "edgeChange": 0.1816,
+          "textureChange": 0.0167,
+          "structuralChange": 0.1173,
+          "areaChange": 0.1332,
+          "builtUpChange": 0.2132,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.5329
+        },
+        "changeScore": 0.1155,
+        "structuralChangeScore": 0.1173,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9267,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 11.7% < 18%). High baseline correlation (88.3% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-04",
+        "name": "Teesta Highway Bridge Northern Abutment Span",
+        "geometry": {
+          "bbox": [
+            360,
+            260,
+            40,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.5998,
+        "centerLng": 88.6525,
+        "footprintAreaM2": 380.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1618,
+          "edgeChange": 0.3274,
+          "textureChange": 0.013,
+          "structuralChange": 0.1706,
+          "areaChange": 0.2446,
+          "builtUpChange": 0.2129,
+          "disappearanceEvidence": 0.0093,
+          "appearanceEvidence": 0.5182
+        },
+        "changeScore": 0.198,
+        "structuralChangeScore": 0.1706,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.8994,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 17.1% < 18%). High baseline correlation (82.9% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-05",
+        "name": "Chungthang Secondary School Main Building",
+        "geometry": {
+          "bbox": [
+            410,
+            250,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.6004,
+        "centerLng": 88.6531,
+        "footprintAreaM2": 490.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0543,
+          "edgeChange": 0.1049,
+          "textureChange": 0.0447,
+          "structuralChange": 0.0615,
+          "areaChange": 0.0796,
+          "builtUpChange": 0.0798,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.1996
+        },
+        "changeScore": 0.0669,
+        "structuralChangeScore": 0.0615,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9507,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 6.2% < 18%). High baseline correlation (93.8% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-06",
+        "name": "BSNL Chungthang Central Exchange & Tower Facility",
+        "geometry": {
+          "bbox": [
+            470,
+            230,
+            35,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.601,
+        "centerLng": 88.6538,
+        "footprintAreaM2": 260.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0242,
+          "edgeChange": 0.1018,
+          "textureChange": 0.0027,
+          "structuralChange": 0.0487,
+          "areaChange": 0.063,
+          "builtUpChange": 0.0725,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.1813
+        },
+        "changeScore": 0.0483,
+        "structuralChangeScore": 0.0487,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.955,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 4.9% < 18%). High baseline correlation (95.1% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-07",
+        "name": "Chungthang Market Bazaar Block A",
+        "geometry": {
+          "bbox": [
+            520,
+            210,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.6016,
+        "centerLng": 88.6544,
+        "footprintAreaM2": 370.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0199,
+          "edgeChange": 0.1141,
+          "textureChange": 0.0018,
+          "structuralChange": 0.0502,
+          "areaChange": 0.067,
+          "builtUpChange": 0.0663,
+          "disappearanceEvidence": 0.0048,
+          "appearanceEvidence": 0.1585
+        },
+        "changeScore": 0.0494,
+        "structuralChangeScore": 0.0502,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9541,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 5.0% < 18%). High baseline correlation (95.0% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-08",
+        "name": "Police Outpost & Emergency Dispatch Post",
+        "geometry": {
+          "bbox": [
+            580,
+            180,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.6022,
+        "centerLng": 88.655,
+        "footprintAreaM2": 320.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.02,
+          "edgeChange": 0.1043,
+          "textureChange": 0.0103,
+          "structuralChange": 0.0462,
+          "areaChange": 0.0621,
+          "builtUpChange": 0.0605,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.1513
+        },
+        "changeScore": 0.046,
+        "structuralChangeScore": 0.0462,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.956,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 4.6% < 18%). High baseline correlation (95.4% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-09",
+        "name": "State PWD Engineering Inspection Bungalow",
+        "geometry": {
+          "bbox": [
+            630,
+            160,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.6028,
+        "centerLng": 88.6556,
+        "footprintAreaM2": 310.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.018,
+          "edgeChange": 0.103,
+          "textureChange": 0.0029,
+          "structuralChange": 0.0507,
+          "areaChange": 0.0605,
+          "builtUpChange": 0.0574,
+          "disappearanceEvidence": 0.0336,
+          "appearanceEvidence": 0.0932
+        },
+        "changeScore": 0.0464,
+        "structuralChangeScore": 0.0507,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9542,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 5.1% < 18%). High baseline correlation (94.9% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-CTG-BLD-10",
+        "name": "Chungthang 66kV Substation Transformer Yard",
+        "geometry": {
+          "bbox": [
+            690,
+            140,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.6035,
+        "centerLng": 88.6562,
+        "footprintAreaM2": 300.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0175,
+          "edgeChange": 0.1184,
+          "textureChange": 0.0166,
+          "structuralChange": 0.0666,
+          "areaChange": 0.0679,
+          "builtUpChange": 0.1027,
+          "disappearanceEvidence": 0.031,
+          "appearanceEvidence": 0.2103
+        },
+        "changeScore": 0.0549,
+        "structuralChangeScore": 0.0666,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9478,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 6.7% < 18%). High baseline correlation (93.3% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      }
+    ],
+    "statistics": {
+      "totalStructures": 10,
+      "destroyedCount": 0,
+      "majorDamageCount": 0,
+      "minorDamageCount": 0,
+      "noDamageCount": 10,
+      "destroyedPercentage": 0.0,
+      "majorDamagePercentage": 0.0,
+      "minorDamagePercentage": 0.0,
+      "noDamagePercentage": 100.0,
+      "averageConfidence": 0.9429,
+      "verifiedCount": 0,
+      "unverifiedCount": 10,
+      "needsReviewCount": 0,
+      "totalFootprintAreaM2": 4040.0,
+      "damagedFootprintAreaM2": 0.0
+    },
+    "damageMapData": [
+      {
+        "structureId": "SK-CTG-BLD-01",
+        "geometry": {
+          "bbox": [
+            200,
+            260,
+            50,
+            40
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9465
+      },
+      {
+        "structureId": "SK-CTG-BLD-02",
+        "geometry": {
+          "bbox": [
+            260,
+            270,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9384
+      },
+      {
+        "structureId": "SK-CTG-BLD-03",
+        "geometry": {
+          "bbox": [
+            310,
+            280,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9267
+      },
+      {
+        "structureId": "SK-CTG-BLD-04",
+        "geometry": {
+          "bbox": [
+            360,
+            260,
+            40,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.8994
+      },
+      {
+        "structureId": "SK-CTG-BLD-05",
+        "geometry": {
+          "bbox": [
+            410,
+            250,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9507
+      },
+      {
+        "structureId": "SK-CTG-BLD-06",
+        "geometry": {
+          "bbox": [
+            470,
+            230,
+            35,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.955
+      },
+      {
+        "structureId": "SK-CTG-BLD-07",
+        "geometry": {
+          "bbox": [
+            520,
+            210,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9541
+      },
+      {
+        "structureId": "SK-CTG-BLD-08",
+        "geometry": {
+          "bbox": [
+            580,
+            180,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.956
+      },
+      {
+        "structureId": "SK-CTG-BLD-09",
+        "geometry": {
+          "bbox": [
+            630,
+            160,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9542
+      },
+      {
+        "structureId": "SK-CTG-BLD-10",
+        "geometry": {
+          "bbox": [
+            690,
+            140,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9478
+      }
+    ],
+    "processingMetadata": {
+      "engine": "EPOCH Deterministic Damage Assessment Engine v2.0",
+      "version": "2.0.0-DEMO",
+      "processingLatencyMs": 80,
+      "timestamp": "2026-09-20T17:19:50.096630+00:00",
+      "alignmentMethod": "ORB_HOMOGRAPHY_WITH_RIGID_FALLBACK",
+      "registrationLabel": "Approximate Optical Feature Registration",
+      "thresholdStatus": "INITIAL DEMONSTRATION THRESHOLDS"
+    }
+  },
+  "sikkim-nh10-dikchu-sector": {
+    "eventId": "sikkim-teesta-flood-2026",
+    "sceneId": "sikkim-nh10-dikchu-sector",
+    "mode": "DEMO",
+    "sceneMetadata": {
+      "title": "Sikkim Teesta Valley & NH-10 Corridor Inundation Assessment",
+      "location": {
+        "name": "Dikchu \u2013 Singtam Highway Corridor",
+        "state": "Sikkim",
+        "district": "Pakyong",
+        "lat": 27.2389,
+        "lng": 88.6065,
+        "corridor": "National Highway 10 (NH-10)"
+      },
+      "sensor": "Demonstration High-Resolution Optical RGB Scene",
+      "resolution": "0.5m GSD (Synthetic Demonstration Scene)",
+      "acquisitionDates": {
+        "before": "2026-08-14 (Pre-Disaster Baseline)",
+        "after": "2026-09-02 (Post-Debris Inundation)"
+      },
+      "disclaimer": "SYNTHETIC DEMONSTRATION DATA (Dikchu \u2013 Singtam Highway Corridor)",
+      "thresholdConfig": "INITIAL DEMONSTRATION THRESHOLDS"
+    },
+    "changeDetection": {
+      "changeScore": 0.18725465620765672,
+      "changedAreaM2": 104511.6,
+      "changePercentage": 12.1,
+      "noiseFiltered": true,
+      "changeMaskBase64": "",
+      "hotspotCount": 3,
+      "disclaimer": "Deterministic optical difference analysis. Environmental terrain shifts filtered separately."
+    },
+    "structures": [
+      {
+        "structureId": "SK-DKC-BLD-01",
+        "name": "Singtam Hydro Intake Station & Generator Hall",
+        "geometry": {
+          "bbox": [
+            160,
+            290,
+            50,
+            40
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2345,
+        "centerLng": 88.512,
+        "footprintAreaM2": 680.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0974,
+          "edgeChange": 0.3504,
+          "textureChange": 0.1554,
+          "structuralChange": 0.1365,
+          "areaChange": 0.2239,
+          "builtUpChange": 0.0554,
+          "disappearanceEvidence": 0.0,
+          "appearanceEvidence": 0.1385
+        },
+        "changeScore": 0.1617,
+        "structuralChangeScore": 0.1365,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9147,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 13.7% < 18%). High baseline correlation (86.3% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-02",
+        "name": "Dikchu Riverfront Commercial Market Hub",
+        "geometry": {
+          "bbox": [
+            220,
+            295,
+            40,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2358,
+        "centerLng": 88.5142,
+        "footprintAreaM2": 420.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0883,
+          "edgeChange": 0.3249,
+          "textureChange": 0.2083,
+          "structuralChange": 0.1701,
+          "areaChange": 0.2066,
+          "builtUpChange": 0.1207,
+          "disappearanceEvidence": 0.101,
+          "appearanceEvidence": 0.1503
+        },
+        "changeScore": 0.1643,
+        "structuralChangeScore": 0.1701,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9034,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 17.0% < 18%). High baseline correlation (83.0% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-03",
+        "name": "Teesta River Viaduct Approach Pier & Toll Span",
+        "geometry": {
+          "bbox": [
+            270,
+            300,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2372,
+        "centerLng": 88.5168,
+        "footprintAreaM2": 510.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1093,
+          "edgeChange": 0.2808,
+          "textureChange": 0.2008,
+          "structuralChange": 0.1522,
+          "areaChange": 0.195,
+          "builtUpChange": 0.1034,
+          "disappearanceEvidence": 0.0713,
+          "appearanceEvidence": 0.1517
+        },
+        "changeScore": 0.1586,
+        "structuralChangeScore": 0.1522,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9128,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 15.2% < 18%). High baseline correlation (84.8% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-04",
+        "name": "NH-10 Transport Logistics & Fuel Depot",
+        "geometry": {
+          "bbox": [
+            340,
+            260,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.239,
+        "centerLng": 88.5201,
+        "footprintAreaM2": 580.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1172,
+          "edgeChange": 0.2538,
+          "textureChange": 0.2315,
+          "structuralChange": 0.1282,
+          "areaChange": 0.1855,
+          "builtUpChange": 0.0473,
+          "disappearanceEvidence": 0.0319,
+          "appearanceEvidence": 0.0706
+        },
+        "changeScore": 0.1484,
+        "structuralChangeScore": 0.1282,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9224,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 12.8% < 18%). High baseline correlation (87.2% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-05",
+        "name": "Pakyong Emergency Medical Sub-Center",
+        "geometry": {
+          "bbox": [
+            395,
+            250,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.241,
+        "centerLng": 88.5235,
+        "footprintAreaM2": 460.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.086,
+          "edgeChange": 0.2741,
+          "textureChange": 0.2069,
+          "structuralChange": 0.13,
+          "areaChange": 0.1801,
+          "builtUpChange": 0.0691,
+          "disappearanceEvidence": 0.0317,
+          "appearanceEvidence": 0.1251
+        },
+        "changeScore": 0.139,
+        "structuralChangeScore": 0.13,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9205,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 13.0% < 18%). High baseline correlation (87.0% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-06",
+        "name": "Government Secondary School Wing A",
+        "geometry": {
+          "bbox": [
+            455,
+            240,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2431,
+        "centerLng": 88.527,
+        "footprintAreaM2": 390.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1795,
+          "edgeChange": 0.4239,
+          "textureChange": 0.2542,
+          "structuralChange": 0.1967,
+          "areaChange": 0.3017,
+          "builtUpChange": 0.0806,
+          "disappearanceEvidence": 0.0461,
+          "appearanceEvidence": 0.1325
+        },
+        "changeScore": 0.2344,
+        "structuralChangeScore": 0.1967,
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9086,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "Localized/superficial damage detected (Structural Change: 19.7% >= 18%). Core structural geometry intact with 18% localized spectral shift and perimeter debris encroachment.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-07",
+        "name": "BSNL Regional Microwave Repeater Enclosure",
+        "geometry": {
+          "bbox": [
+            510,
+            230,
+            35,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.245,
+        "centerLng": 88.5305,
+        "footprintAreaM2": 240.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1423,
+          "edgeChange": 0.3368,
+          "textureChange": 0.3257,
+          "structuralChange": 0.1895,
+          "areaChange": 0.2396,
+          "builtUpChange": 0.1396,
+          "disappearanceEvidence": 0.0467,
+          "appearanceEvidence": 0.2789
+        },
+        "changeScore": 0.1977,
+        "structuralChangeScore": 0.1895,
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9057,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "Localized/superficial damage detected (Structural Change: 18.9% >= 18%). Core structural geometry intact with 14% localized spectral shift and perimeter debris encroachment.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-08",
+        "name": "Upper Ridge Community Panchayat Hall",
+        "geometry": {
+          "bbox": [
+            570,
+            180,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.2482,
+        "centerLng": 88.535,
+        "footprintAreaM2": 350.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1154,
+          "edgeChange": 0.335,
+          "textureChange": 0.2758,
+          "structuralChange": 0.1534,
+          "areaChange": 0.2252,
+          "builtUpChange": 0.0732,
+          "disappearanceEvidence": 0.0035,
+          "appearanceEvidence": 0.1778
+        },
+        "changeScore": 0.1726,
+        "structuralChangeScore": 0.1534,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9094,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 15.3% < 18%). High baseline correlation (84.7% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-09",
+        "name": "Forest Directorate Range Inspection Quarters",
+        "geometry": {
+          "bbox": [
+            625,
+            160,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.251,
+        "centerLng": 88.5395,
+        "footprintAreaM2": 310.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.1486,
+          "edgeChange": 0.3432,
+          "textureChange": 0.1287,
+          "structuralChange": 0.1976,
+          "areaChange": 0.2459,
+          "builtUpChange": 0.1767,
+          "disappearanceEvidence": 0.1253,
+          "appearanceEvidence": 0.2538
+        },
+        "changeScore": 0.2047,
+        "structuralChangeScore": 0.1976,
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9109,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "Localized/superficial damage detected (Structural Change: 19.8% >= 18%). Core structural geometry intact with 15% localized spectral shift and perimeter debris encroachment.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      },
+      {
+        "structureId": "SK-DKC-BLD-10",
+        "name": "Pakyong Substation 33kV Switchyard Bunk",
+        "geometry": {
+          "bbox": [
+            680,
+            140,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "centerLat": 27.254,
+        "centerLng": 88.544,
+        "footprintAreaM2": 280.0,
+        "beforeEvidence": "",
+        "afterEvidence": "",
+        "features": {
+          "pixelChange": 0.0719,
+          "edgeChange": 0.2645,
+          "textureChange": 0.0944,
+          "structuralChange": 0.1141,
+          "areaChange": 0.1682,
+          "builtUpChange": 0.061,
+          "disappearanceEvidence": 0.0444,
+          "appearanceEvidence": 0.0859
+        },
+        "changeScore": 0.1252,
+        "structuralChangeScore": 0.1141,
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9263,
+        "verificationStatus": "UNVERIFIED",
+        "explanation": "No significant structural change detected (Structural Change: 11.4% < 18%). High baseline correlation (88.6% intact fidelity) with intact roof and boundary geometry.",
+        "isSyntheticFootprint": true,
+        "assessorNotes": null,
+        "verifiedBy": null,
+        "verifiedAt": null
+      }
+    ],
+    "statistics": {
+      "totalStructures": 10,
+      "destroyedCount": 0,
+      "majorDamageCount": 0,
+      "minorDamageCount": 3,
+      "noDamageCount": 7,
+      "destroyedPercentage": 0.0,
+      "majorDamagePercentage": 0.0,
+      "minorDamagePercentage": 30.0,
+      "noDamagePercentage": 70.0,
+      "averageConfidence": 0.9135,
+      "verifiedCount": 0,
+      "unverifiedCount": 10,
+      "needsReviewCount": 0,
+      "totalFootprintAreaM2": 4220.0,
+      "damagedFootprintAreaM2": 940.0
+    },
+    "damageMapData": [
+      {
+        "structureId": "SK-DKC-BLD-01",
+        "geometry": {
+          "bbox": [
+            160,
+            290,
+            50,
+            40
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9147
+      },
+      {
+        "structureId": "SK-DKC-BLD-02",
+        "geometry": {
+          "bbox": [
+            220,
+            295,
+            40,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9034
+      },
+      {
+        "structureId": "SK-DKC-BLD-03",
+        "geometry": {
+          "bbox": [
+            270,
+            300,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9128
+      },
+      {
+        "structureId": "SK-DKC-BLD-04",
+        "geometry": {
+          "bbox": [
+            340,
+            260,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9224
+      },
+      {
+        "structureId": "SK-DKC-BLD-05",
+        "geometry": {
+          "bbox": [
+            395,
+            250,
+            45,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9205
+      },
+      {
+        "structureId": "SK-DKC-BLD-06",
+        "geometry": {
+          "bbox": [
+            455,
+            240,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9086
+      },
+      {
+        "structureId": "SK-DKC-BLD-07",
+        "geometry": {
+          "bbox": [
+            510,
+            230,
+            35,
+            30
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9057
+      },
+      {
+        "structureId": "SK-DKC-BLD-08",
+        "geometry": {
+          "bbox": [
+            570,
+            180,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9094
+      },
+      {
+        "structureId": "SK-DKC-BLD-09",
+        "geometry": {
+          "bbox": [
+            625,
+            160,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "MINOR_DAMAGE",
+        "confidence": 0.9109
+      },
+      {
+        "structureId": "SK-DKC-BLD-10",
+        "geometry": {
+          "bbox": [
+            680,
+            140,
+            40,
+            35
+          ],
+          "type": "Polygon"
+        },
+        "damageClass": "NO_DAMAGE",
+        "confidence": 0.9263
+      }
+    ],
+    "processingMetadata": {
+      "engine": "EPOCH Deterministic Damage Assessment Engine v2.0",
+      "version": "2.0.0-DEMO",
+      "processingLatencyMs": 80,
+      "timestamp": "2026-09-20T17:19:50.177679+00:00",
+      "alignmentMethod": "ORB_HOMOGRAPHY_WITH_RIGID_FALLBACK",
+      "registrationLabel": "Approximate Optical Feature Registration",
+      "thresholdStatus": "INITIAL DEMONSTRATION THRESHOLDS"
+    }
+  }
+}
